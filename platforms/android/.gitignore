@@ -100,3 +100,4 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
+platforms/android/app/libs/
