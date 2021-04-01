@@ -1,0 +1,6 @@
+/Users/shiki/workspace_android/mydemo/NativeOpenglLearn/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/shiki/workspace_android/mydemo/NativeOpenglLearn/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/shiki/workspace_android/mydemo/NativeOpenglLearn/cmake-build-debug/CMakeFiles/demo_osx.dir
+/Users/shiki/workspace_android/mydemo/NativeOpenglLearn/cmake-build-debug/demo/CMakeFiles/rebuild_cache.dir
+/Users/shiki/workspace_android/mydemo/NativeOpenglLearn/cmake-build-debug/demo/CMakeFiles/edit_cache.dir
+/Users/shiki/workspace_android/mydemo/NativeOpenglLearn/cmake-build-debug/demo/CMakeFiles/demo.dir

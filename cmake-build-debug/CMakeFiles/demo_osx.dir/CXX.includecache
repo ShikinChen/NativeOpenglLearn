@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/shiki/workspace_android/mydemo/NativeOpenglLearn/platforms/osx/src/main.mm
+memory
+-
+signal.h
+-
+stdlib.h
+-
+AppKit/AppKit.h
+-
+
