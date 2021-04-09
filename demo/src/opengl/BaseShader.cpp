@@ -10,9 +10,11 @@ BaseShader::BaseShader() {
 BaseShader::~BaseShader() {
   if (vertexs) {
 	delete[] vertexs;
+    vertexs=nullptr;
   }
   if (fragments) {
 	delete[] fragments;
+    fragments= nullptr;
   }
 }
 bool BaseShader::OnCreate() {

@@ -7,10 +7,10 @@
 #include "../egl/EglThread.h"
 #include "BaseShader.h"
 #include <jni.h>
-#include <list>
+#include <vector>
 using namespace std;
 
-typedef list<BaseShader *> ShaderlList;
+typedef vector<BaseShader *> ShaderlList;
 
 class ShaderControl {
  public:

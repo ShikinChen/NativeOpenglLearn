@@ -20,7 +20,7 @@ void *eglThreadImpl(void *data) {
   eglThread->isExit = false;
   while (!eglThread->isExit) {
     if (eglThread->isCreate) {
-      PLOGD << "eglThread 创建";
+      PLOGD << "eglThread create";
       eglThread->isCreate = false;
       if (eglThread->onCreate != nullptr) {
         eglThread->onCreate(eglThread->onCreateContext);
@@ -57,6 +57,7 @@ void *eglThreadImpl(void *data) {
       eglThread->onDestroy(eglThread->onDestroyContext);
     }
   }
+  PLOGD << "eglThread destroy";
   eglHelper->Destroy();
   delete eglHelper;
   eglHelper = nullptr;
@@ -102,9 +103,10 @@ void EglThread::NotifyRender() {
   pthread_mutex_unlock(&pthreadMutex);
 }
 void EglThread::Destroy() {
-  isExit = false;
+  isExit = true;
   NotifyRender();
   pthread_join(eglThread, nullptr);
+  isExit = false;
   nativeWindow = nullptr;
   eglThread = -1;
 }

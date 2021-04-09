@@ -11,55 +11,58 @@
 ShaderControl::ShaderControl() {}
 ShaderControl::~ShaderControl() {
   if (eglThread) {
-	delete eglThread;
-	eglThread = nullptr;
+    delete eglThread;
+    eglThread = nullptr;
   }
-  if (!shaderlList.empty()) {
-	shaderlList.clear();
+  while (!shaderlList.empty()) {
+    auto item = shaderlList.back();
+    shaderlList.pop_back();
+    delete item;
+    item = nullptr;
   }
 }
 
 void callbackSurfaceCreate(void *context) {
   ShaderControl *openglControl = static_cast<ShaderControl *>(context);
   if (openglControl && !openglControl->shaderlList.empty()) {
-	auto list = openglControl->shaderlList;
-	ShaderlList::iterator item;
-	for (item = list.begin(); item != list.end(); ++item) {
-	  static_cast<BaseShader *>(*item)->OnCreate();
-	}
+    auto list = openglControl->shaderlList;
+    ShaderlList::iterator item;
+    for (item = list.begin(); item != list.end(); ++item) {
+      static_cast<BaseShader *>(*item)->OnCreate();
+    }
   }
 }
 
 void callbackSurfaceChange(int width, int height, void *context) {
   ShaderControl *openglControl = static_cast<ShaderControl *>(context);
   if (openglControl && !openglControl->shaderlList.empty()) {
-	auto list = openglControl->shaderlList;
-	ShaderlList::iterator item;
-	for (item = list.begin(); item != list.end(); ++item) {
-	  static_cast<BaseShader *>(*item)->OnChange(width, height);
-	}
+    auto list = openglControl->shaderlList;
+    ShaderlList::iterator item;
+    for (item = list.begin(); item != list.end(); ++item) {
+      static_cast<BaseShader *>(*item)->OnChange(width, height);
+    }
   }
 }
 
 void callbackSurfaceDraw(void *context) {
   ShaderControl *openglControl = static_cast<ShaderControl *>(context);
   if (openglControl && !openglControl->shaderlList.empty()) {
-	auto list = openglControl->shaderlList;
-	ShaderlList::iterator item;
-	for (item = list.begin(); item != list.end(); ++item) {
-	  static_cast<BaseShader *>(*item)->OnDraw();
-	}
+    auto list = openglControl->shaderlList;
+    ShaderlList::iterator item;
+    for (item = list.begin(); item != list.end(); ++item) {
+      static_cast<BaseShader *>(*item)->OnDraw();
+    }
   }
 }
 
 void callbackSurfaceDestroy(void *context) {
   ShaderControl *openglControl = static_cast<ShaderControl *>(context);
   if (openglControl && !openglControl->shaderlList.empty()) {
-	auto list = openglControl->shaderlList;
-	ShaderlList::iterator item;
-	for (item = list.begin(); item != list.end(); ++item) {
-	  static_cast<BaseShader *>(*item)->Destroy();
-	}
+    auto list = openglControl->shaderlList;
+    ShaderlList::iterator item;
+    for (item = list.begin(); item != list.end(); ++item) {
+      static_cast<BaseShader *>(*item)->Destroy();
+    }
   }
 }
 
@@ -76,21 +79,15 @@ void ShaderControl::OnSurfaceCreate(JNIEnv *env, jobject surface) {
 }
 void ShaderControl::OnSurfaceChange(int width, int height) {
   if (eglThread) {
-	eglThread->OnSurfaceChange(width, height);
+    eglThread->OnSurfaceChange(width, height);
   }
 }
 void ShaderControl::OnSurfaceDestroy() {
   if (eglThread) {
-	eglThread->Destroy();
-  }
-  while (!shaderlList.empty()) {
-	auto item = shaderlList.back();
-	shaderlList.pop_back();
-	delete item;
-	item = nullptr;
+    eglThread->Destroy();
   }
   if (nativeWindow) {
-	ANativeWindow_release(nativeWindow);
-	nativeWindow = nullptr;
+    ANativeWindow_release(nativeWindow);
+    nativeWindow = nullptr;
   }
 }
