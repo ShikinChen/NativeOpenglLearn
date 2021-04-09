@@ -10,7 +10,11 @@ if (NOT DEMO_PLATFORM)
     endif ()
 endif ()
 
-set(DEMO_PLATFORM_CONFIG_FILE "platforms/${DEMO_PLATFORM}/config.cmake")
+set(DEPS_CONFIG_FILE "deps/config.cmake")
+include(${DEPS_CONFIG_FILE})
+
+set(DEMO_PLATFORM_CONFIG_FILE "platforms/android/config.cmake")
 include(${DEMO_PLATFORM_CONFIG_FILE})
+
 add_subdirectory(demo)
 

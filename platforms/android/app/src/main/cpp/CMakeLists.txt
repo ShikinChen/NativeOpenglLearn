@@ -14,6 +14,8 @@ file(GLOB CPP_FILE_PATH
         ${CMAKE_CURRENT_LIST_DIR}/*.cpp
         )
 
+#message(WARNING "${CPP_FILE_PATH}")
+
 add_library(
         demo_android
         SHARED
@@ -26,4 +28,5 @@ find_library(egl-lib EGL)
 
 target_link_libraries(
         demo_android
-        ${log-lib} ${android-lib} ${glesv2-lib} ${egl-lib})
+        demo
+)

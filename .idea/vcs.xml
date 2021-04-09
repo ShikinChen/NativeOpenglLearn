@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/plog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/spdlog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/platforms/NativeOpenglDemo" vcs="Git" />
   </component>
 </project>
