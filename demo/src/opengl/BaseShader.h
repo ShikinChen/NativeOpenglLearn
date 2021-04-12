@@ -10,6 +10,7 @@ class BaseShader {
  public:
   int width;
   int height;
+  bool isDraw = true;
 
   GLuint vertexShader;
   GLuint fragmentShader;
@@ -26,7 +27,7 @@ class BaseShader {
   int fragmentsSize = 0;
 
  public:
-  BaseShader();
+  BaseShader(bool isDraw = true);
 
   virtual ~BaseShader();
 

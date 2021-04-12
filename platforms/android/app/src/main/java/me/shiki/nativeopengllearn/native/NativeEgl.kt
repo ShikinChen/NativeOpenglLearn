@@ -15,9 +15,27 @@ class NativeEgl {
         }
     }
 
-    external fun native_Create(surface: Surface)
+    fun create(surface: Surface) {
+        native_Create(surface)
+    }
 
-    external fun native_Change(width: Int, height: Int)
+    fun change(width: Int, height: Int) {
+        native_Change(width, height)
+    }
 
-    external fun native_Destroy()
+    fun destroy() {
+        native_Destroy()
+    }
+
+    fun notifyRender() {
+        native_NotifyRender()
+    }
+
+    private external fun native_Create(surface: Surface)
+
+    private external fun native_Change(width: Int, height: Int)
+
+    private external fun native_Destroy()
+
+    private external fun native_NotifyRender()
 }

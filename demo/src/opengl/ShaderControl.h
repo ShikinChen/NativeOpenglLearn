@@ -28,6 +28,8 @@ class ShaderControl {
   void OnSurfaceChange(int width, int height);
 
   void OnSurfaceDestroy();
+
+  void NotifyRender();
 };
 
 #endif //NATIVEOPENGLLEARN_DEMO_SRC_OPENGLCONTROL_H_

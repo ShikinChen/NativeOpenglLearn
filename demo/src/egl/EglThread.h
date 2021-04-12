@@ -24,9 +24,11 @@ class EglThread {
   bool isStart = false;
   int surfaceWidth = 0;
   int surfaceHeight = 0;
-  RenderType renderType = AUTO;
+
   pthread_mutex_t pthreadMutex;
   pthread_cond_t pthreadCond;
+ private:
+  RenderType renderType = AUTO;
 
  public:
   EglThread();
@@ -57,6 +59,7 @@ class EglThread {
 
   void CallbackOnDestroy(OnDestroy onDestroy, void *context);
   void SetRenderType(RenderType renderType);
+  RenderType GetRenderType();
 
   void NotifyRender();
   void Destroy();

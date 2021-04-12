@@ -7,7 +7,7 @@
 #include "../opengl/BaseShader.h"
 class Triangle : public BaseShader {
  public:
-  Triangle();
+  Triangle(bool isDraw = true);
   virtual ~Triangle();
   bool OnCreate() override;
   void OnChange(int width, int height) override;

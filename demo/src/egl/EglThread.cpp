@@ -19,43 +19,43 @@ void *eglThreadImpl(void *data) {
   eglHelper->InitEgl(eglThread->nativeWindow);
   eglThread->isExit = false;
   while (!eglThread->isExit) {
-    if (eglThread->isCreate) {
-      PLOGD << "eglThread create";
-      eglThread->isCreate = false;
-      if (eglThread->onCreate != nullptr) {
-        eglThread->onCreate(eglThread->onCreateContext);
-      }
-    }
+	if (eglThread->isCreate) {
+	  PLOGD << "eglThread create";
+	  eglThread->isCreate = false;
+	  if (eglThread->onCreate != nullptr) {
+		eglThread->onCreate(eglThread->onCreateContext);
+	  }
+	}
 
-    if (eglThread->isChange) {
-      PLOGD << "eglThread change";
-      eglThread->isChange = false;
-      if (eglThread->onChange) {
-        eglThread->onChange(eglThread->surfaceWidth, eglThread->surfaceHeight, eglThread->onChangeContext);
-      }
-      eglThread->isStart = true;
-    }
-    if (eglThread->isStart) {
-      if (eglThread->onDraw) {
-        eglThread->onDraw(eglThread->onDrawContext);
-      }
-      eglHelper->SwapBuffers();
-    }
-    switch (eglThread->renderType) {
-      case AUTO: {
-        usleep(1000000 / 60);
-      }
-        break;
-      case HANDLE: {
-        pthread_mutex_lock(&eglThread->pthreadMutex);
-        pthread_cond_wait(&eglThread->pthreadCond, &eglThread->pthreadMutex);
-        pthread_mutex_unlock(&eglThread->pthreadMutex);
-      }
-        break;
-    }
-    if (eglThread->onDestroy != nullptr) {
-      eglThread->onDestroy(eglThread->onDestroyContext);
-    }
+	if (eglThread->isChange) {
+	  PLOGD << "eglThread change";
+	  eglThread->isChange = false;
+	  if (eglThread->onChange) {
+		eglThread->onChange(eglThread->surfaceWidth, eglThread->surfaceHeight, eglThread->onChangeContext);
+	  }
+	  eglThread->isStart = true;
+	}
+	if (eglThread->isStart) {
+	  if (eglThread->onDraw) {
+		eglThread->onDraw(eglThread->onDrawContext);
+	  }
+	  eglHelper->SwapBuffers();
+	}
+	switch (eglThread->GetRenderType()) {
+	  case AUTO: {
+		usleep(1000000 / 60);
+	  }
+		break;
+	  case HANDLE: {
+		pthread_mutex_lock(&eglThread->pthreadMutex);
+		pthread_cond_wait(&eglThread->pthreadCond, &eglThread->pthreadMutex);
+		pthread_mutex_unlock(&eglThread->pthreadMutex);
+	  }
+		break;
+	}
+  }
+  if (eglThread->onDestroy != nullptr) {
+	eglThread->onDestroy(eglThread->onDestroyContext);
   }
   PLOGD << "eglThread destroy";
   eglHelper->Destroy();
@@ -66,9 +66,9 @@ void *eglThreadImpl(void *data) {
 
 void EglThread::OnSurfaceCreate(EGLNativeWindowType window) {
   if (eglThread == -1) {
-    isCreate = true;
-    nativeWindow = window;
-    pthread_create(&eglThread, nullptr, eglThreadImpl, this);
+	isCreate = true;
+	nativeWindow = window;
+	pthread_create(&eglThread, nullptr, eglThreadImpl, this);
   }
 }
 
@@ -95,7 +95,11 @@ void EglThread::CallbackOnDestroy(EglThread::OnDestroy onDestroy, void *context)
   onDestroyContext = context;
 }
 void EglThread::SetRenderType(RenderType renderType) {
+  RenderType tmp = this->renderType;
   this->renderType = renderType;
+  if (tmp == HANDLE) {
+	NotifyRender();
+  }
 }
 void EglThread::NotifyRender() {
   pthread_mutex_lock(&pthreadMutex);
@@ -104,9 +108,14 @@ void EglThread::NotifyRender() {
 }
 void EglThread::Destroy() {
   isExit = true;
-  NotifyRender();
+  if (renderType == HANDLE) {
+	NotifyRender();
+  }
   pthread_join(eglThread, nullptr);
   isExit = false;
   nativeWindow = nullptr;
   eglThread = -1;
+}
+RenderType EglThread::GetRenderType() {
+  return renderType;
 }

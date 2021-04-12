@@ -11,7 +11,7 @@ import android.view.SurfaceView
  * @date 4/6/21
  *
  */
-class NativeSurfaceView @JvmOverloads constructor(
+open class NativeSurfaceView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -26,14 +26,14 @@ class NativeSurfaceView @JvmOverloads constructor(
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        nativeEgl.native_Create(holder.surface)
+        nativeEgl.create(holder.surface)
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        nativeEgl.native_Change(width, height)
+        nativeEgl.change(width, height)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-        nativeEgl.native_Destroy()
+        nativeEgl.destroy()
     }
 }

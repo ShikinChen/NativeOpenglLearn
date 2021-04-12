@@ -50,7 +50,10 @@ void callbackSurfaceDraw(void *context) {
     auto list = openglControl->shaderlList;
     ShaderlList::iterator item;
     for (item = list.begin(); item != list.end(); ++item) {
-      static_cast<BaseShader *>(*item)->OnDraw();
+      auto shader = static_cast<BaseShader *>(*item);
+      if (shader->isDraw) {
+        shader->OnDraw();
+      }
     }
   }
 }
@@ -85,9 +88,23 @@ void ShaderControl::OnSurfaceChange(int width, int height) {
 void ShaderControl::OnSurfaceDestroy() {
   if (eglThread) {
     eglThread->Destroy();
+    delete eglThread;
+    eglThread = nullptr;
+  }
+  if (!shaderlList.empty()) {
+    ShaderlList::iterator item;
+    for (item = shaderlList.begin(); item != shaderlList.end(); ++item) {
+      auto shader = static_cast<BaseShader *>(*item);
+      shader->Destroy();
+    }
   }
   if (nativeWindow) {
     ANativeWindow_release(nativeWindow);
     nativeWindow = nullptr;
+  }
+}
+void ShaderControl::NotifyRender() {
+  if (eglThread && eglThread->GetRenderType() == HANDLE) {
+    eglThread->NotifyRender();
   }
 }
