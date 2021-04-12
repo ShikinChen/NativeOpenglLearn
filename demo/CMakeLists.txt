@@ -37,5 +37,6 @@ target_include_directories(demo
 target_link_libraries(
         demo
         plog
+        glm
         log android GLESv2 EGL
 )

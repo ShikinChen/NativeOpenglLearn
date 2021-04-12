@@ -21,10 +21,17 @@ class MainActivity : AppCompatActivity() {
     private val nsv: MySurfaceView by lazy {
         findViewById(R.id.nsv)
     }
+    private val demoList by lazy {
+        listOf("Triangle", "TextureMap")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        nsv.onSurfaceCreatedListener = {
+            selectedIndex = demoList.size - 1
+            setDemo(selectedIndex)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -37,23 +44,27 @@ class MainActivity : AppCompatActivity() {
         if (id == R.id.demo) {
             MaterialDialog(this).show {
                 listItemsSingleChoice(
-                    items = listOf("Triangle", "TextureMap"),
+                    items = demoList,
                     initialSelection = selectedIndex
                 ) { dialog, index, text ->
-                    when (index) {
-                        //TextureMap
-                        1 -> {
-                            loadRGBAImage(R.drawable.test01)?.let {
-                                nsv.setImageData(index, MySurfaceView.IMAGE_FORMAT_RGBA, it)
-                            }
-                        }
-                    }
-                    nsv.switchShader(selectedIndex, index)
-                    selectedIndex = index
+                    setDemo(index)
                 }
             }
         }
         return true
+    }
+
+    private fun setDemo(index: Int) {
+        when (index) {
+            //TextureMap
+            1 -> {
+                loadRGBAImage(R.drawable.test01)?.let {
+                    nsv.setImageData(index, MySurfaceView.IMAGE_FORMAT_RGBA, it)
+                }
+            }
+        }
+        nsv.switchShader(selectedIndex, index)
+        selectedIndex = index
     }
 
     private fun loadRGBAImage(imgResId: Int): Bitmap? {

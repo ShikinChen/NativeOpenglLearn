@@ -7,7 +7,8 @@
 #include "../opengl/BaseShader.h"
 #include "../include//ImageDef.h"
 #include "ImageDef.h"
-
+#include <glm/glm.hpp>
+using namespace glm;
 class TextureMap : public BaseShader {
  public:
   TextureMap(bool isDraw = true);
@@ -21,8 +22,11 @@ class TextureMap : public BaseShader {
 
  private:
   GLuint textureId = 0;
-  GLuint sampleLoc;
+  GLuint s_TextureMap;
+  GLuint u_Matrix;
   NativeImage img;
+  mat4 matrix;
+  void SetOrthoM();
 
  protected:
   const char *GetVertex() override;

@@ -3,6 +3,7 @@ package me.shiki.nativeopengllearn
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
+import android.view.SurfaceHolder
 import me.shiki.nativeopengllearn.native.NativeSurfaceView
 import java.nio.ByteBuffer
 
@@ -23,6 +24,13 @@ class MySurfaceView @JvmOverloads constructor(
         const val IMAGE_FORMAT_NV21 = 0x02
         const val IMAGE_FORMAT_NV12 = 0x03
         const val IMAGE_FORMAT_I420 = 0x04
+    }
+
+    var onSurfaceCreatedListener: (() -> Unit)? = null
+
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        super.surfaceCreated(holder)
+        onSurfaceCreatedListener?.invoke()
     }
 
     fun switchShader(unSelIndex: Int, selIndex: Int) {

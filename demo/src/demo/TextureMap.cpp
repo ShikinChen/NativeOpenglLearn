@@ -4,6 +4,9 @@
 
 #include "TextureMap.h"
 #include <plog/Log.h>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 TextureMap::TextureMap(bool isDraw) : BaseShader(isDraw) {
 }
 TextureMap::~TextureMap() {
@@ -12,13 +15,14 @@ TextureMap::~TextureMap() {
 }
 const char *TextureMap::GetVertex() {
   return "#version 300 es                          \n"
-         "layout(location = 0) in vec4 a_position;  \n"
-         "layout(location = 1) in vec2 a_texCoord;  \n"
+         "layout(location = 0) in vec4 v_Position;  \n"
+         "layout(location = 1) in vec2 f_Position;  \n"
          "out vec2 v_texCoord;  					\n"
+         "uniform mat4 u_Matrix;  				    \n"
          "void main()                              \n"
          "{                                        \n"
-         "   gl_Position = a_position;              \n"
-         "   v_texCoord = a_texCoord;              \n"
+         "   gl_Position = v_Position*u_Matrix;   \n"
+         "   v_texCoord = f_Position;              \n"
          "}                                        \n";
 }
 const char *TextureMap::GetFragment() {
@@ -66,7 +70,8 @@ bool TextureMap::OnCreate() {
   glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
   if (program > 0) {
-    sampleLoc = glGetUniformLocation(program, "s_TextureMap");
+    s_TextureMap = glGetUniformLocation(program, "s_TextureMap");
+    u_Matrix = glGetUniformLocation(program, "u_Matrix");
   }
   return true;
 }
@@ -74,6 +79,7 @@ bool TextureMap::OnCreate() {
 void TextureMap::OnChange(int width, int height) {
   PLOGD << "OnChange";
   BaseShader::OnChange(width, height);
+  SetOrthoM();
 }
 void TextureMap::OnDraw() {
   PLOGD << "OnDraw";
@@ -97,7 +103,9 @@ void TextureMap::OnDraw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
 
-    glUniform1i(sampleLoc, 0);
+    glUniform1i(s_TextureMap, 0);
+
+    glUniformMatrix4fv(u_Matrix, 1, GL_FALSE, value_ptr(matrix));
 
     GLushort indices[] = {0, 1, 2, 0, 2, 3};
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
@@ -112,6 +120,21 @@ void TextureMap::Destroy() {
 }
 NativeImage *TextureMap::GetImg() {
   return &img;
+}
+void TextureMap::SetOrthoM() {
+  if (img.width <= 0 || img.height <= 0 || width <= 0 || height <= 0) {
+    return;
+  }
+  float sreen_r = width * 1.0 / height;
+  float img_r = img.width * 1.0 / img.height;
+  if (sreen_r > img_r) {//宽度缩放
+    float r = width / (height * 1.0 / img.height * img.width);
+    matrix = glm::scale(mat4(1.0f), vec3(r, 1.0f, 1.0f));
+  } else {//高度缩放
+    float r = height / (width * 1.0 / img.width * img.height);
+    matrix = glm::scale(mat4(1.0f), vec3(1.0f, r, 1.0f));
+  }
+
 }
 
 
