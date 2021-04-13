@@ -41,7 +41,11 @@ class MySurfaceView @JvmOverloads constructor(
         val bytes = bitmap.byteCount
         val buf = ByteBuffer.allocate(bytes)
         bitmap.copyPixelsToBuffer(buf)
-        native_SetImageData(index, format, bitmap.width, bitmap.height, buf.array())
+        setImageData(index, format, bitmap.width, bitmap.height, buf.array())
+    }
+
+    fun setImageData(index: Int, format: Int, width: Int, height: Int, bytes: ByteArray) {
+        native_SetImageData(index, format, width, height, bytes)
     }
 
     private external fun native_SwitchShader(unSelIndex: Int, selIndex: Int)

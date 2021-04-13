@@ -5,8 +5,17 @@
 #ifndef NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASESHADER_H_
 #define NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASESHADER_H_
 #include <GLES3/gl3.h>
+#include <glm/glm.hpp>
 
 class BaseShader {
+
+ protected:
+  glm::mat4 matrix;
+
+ protected:
+  virtual const char *GetVertex();
+  virtual const char *GetFragment();
+
  public:
   int width;
   int height;
@@ -14,10 +23,9 @@ class BaseShader {
 
   GLuint vertexShader;
   GLuint fragmentShader;
-  GLuint textureId;
 
-  float *vertexs = nullptr;
-  float *fragments = nullptr;
+  GLfloat *vertexs = nullptr;
+  GLfloat *fragments = nullptr;
 
   GLuint program = -1;
   GLuint vbo;
@@ -31,6 +39,8 @@ class BaseShader {
 
   virtual ~BaseShader();
 
+  virtual void ResetMatrix();
+
   virtual bool OnCreate();
 
   virtual void OnChange(int width, int height);
@@ -39,9 +49,6 @@ class BaseShader {
 
   virtual void Destroy();
 
- protected:
-  virtual const char *GetVertex();
-  virtual const char *GetFragment();
 };
 
 #endif //NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASESHADER_H_

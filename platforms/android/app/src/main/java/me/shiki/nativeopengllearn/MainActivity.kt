@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.nsv)
     }
     private val demoList by lazy {
-        listOf("Triangle", "TextureMap")
+        listOf("Triangle", "TextureMap", "NV21TextureMap","VaoAndVbo")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,9 +62,26 @@ class MainActivity : AppCompatActivity() {
                     nsv.setImageData(index, MySurfaceView.IMAGE_FORMAT_RGBA, it)
                 }
             }
+            2 -> {
+                loadNV21Image("test02_720x510_nv21.yuv")?.let {
+                    nsv.setImageData(index, MySurfaceView.IMAGE_FORMAT_NV21, 720, 510, it)
+                }
+            }
         }
         nsv.switchShader(selectedIndex, index)
         selectedIndex = index
+    }
+
+    private fun loadNV21Image(fileName: String): ByteArray? {
+        try {
+            val inputStream = assets.open(fileName)
+            return inputStream.readBytes()
+        } catch (e: Exception) {
+            if (!e.message.isNullOrEmpty()) {
+                Log.e(TAG, e.message!!)
+            }
+        }
+        return null
     }
 
     private fun loadRGBAImage(imgResId: Int): Bitmap? {

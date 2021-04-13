@@ -38,5 +38,5 @@ target_link_libraries(
         demo
         plog
         glm
-        log android GLESv2 EGL
+        log android GLESv3 EGL
 )

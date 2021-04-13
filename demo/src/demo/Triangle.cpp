@@ -32,7 +32,7 @@ bool Triangle::OnCreate() {
   if (!BaseShader::OnCreate()) {
 	return false;
   }
-  float v[] = {
+  GLfloat v[] = {
 	  0.0f, 0.5f, 0.0f,
 	  -0.5f, -0.5f, 0.0f,
 	  0.5f, -0.5f, 0.0f,

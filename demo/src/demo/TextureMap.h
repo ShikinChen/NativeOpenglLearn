@@ -9,6 +9,7 @@
 #include "ImageDef.h"
 #include <glm/glm.hpp>
 using namespace glm;
+
 class TextureMap : public BaseShader {
  public:
   TextureMap(bool isDraw = true);
@@ -26,11 +27,13 @@ class TextureMap : public BaseShader {
   GLuint u_Matrix;
   NativeImage img;
   mat4 matrix;
-  void SetOrthoM();
+
 
  protected:
   const char *GetVertex() override;
   const char *GetFragment() override;
+ public:
+  void ResetMatrix() override;
 };
 
 #endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_TEXTURE_MAP_H_

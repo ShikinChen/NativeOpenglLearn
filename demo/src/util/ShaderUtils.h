@@ -4,7 +4,7 @@
 
 #ifndef NATIVEOPENGLLEARN_DEMO_SRC_UTIL_SHADERUTILS_H_
 #define NATIVEOPENGLLEARN_DEMO_SRC_UTIL_SHADERUTILS_H_
-#include <GLES2/gl2.h>
+#include <GLES3/gl3.h>
 
 class ShaderUtils {
  public:

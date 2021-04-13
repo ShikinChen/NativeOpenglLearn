@@ -57,7 +57,7 @@ GLuint ShaderUtils::CreateProgram(const char *vertex, const char *fragment, GLui
 GLuint ShaderUtils::LoadShaders(int shaderType, const char *code) {
   //创建shader（着色器：顶点或片元
   int shader = glCreateShader(shaderType);
-  if (shader) {
+  if (shader&&code) {
     //加载shader源码并编译shader
     glShaderSource(shader, 1, &code, nullptr);
     glCompileShader(shader);

@@ -4,6 +4,7 @@
 
 #include "EglHelper.h"
 #include "Constants.h"
+#include <EGL/eglext.h>
 
 EglHelper::EglHelper() {}
 
@@ -15,13 +16,13 @@ int EglHelper::InitEgl(EGLNativeWindowType win) {
   //得到默认的显示设备（就是窗口）
   eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   if (eglDisplay == NULL) {
-	PLOGD << "eglDisplay 获取失败";
+	PLOGE << "eglDisplay 获取失败";
 	return CODE_ERROR;
   }
   //初始化默认显示设备
   EGLint *version = new EGLint[2];
   if (!eglInitialize(eglDisplay, &version[0], &version[1])) {
-	PLOGD << "egl 初始化失败";
+	PLOGE << "egl 初始化失败";
 	return CODE_ERROR;
   }
   //设置显示设备的属性
@@ -30,19 +31,20 @@ int EglHelper::InitEgl(EGLNativeWindowType win) {
 	  EGL_GREEN_SIZE, 8,
 	  EGL_BLUE_SIZE, 8,
 	  EGL_ALPHA_SIZE, 8,
-	  EGL_DEPTH_SIZE, 8,
+	  EGL_DEPTH_SIZE, 16,
 	  EGL_STENCIL_SIZE, 8,
-	  EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+	  EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT_KHR,
+	  EGL_SURFACE_TYPE,EGL_PBUFFER_BIT,
 	  EGL_NONE
   };
   EGLint numConfig;
   //从系统中获取对应属性的配置
   if (!eglChooseConfig(eglDisplay, attribs, NULL, 1, &numConfig)) {
-	PLOGD << "egl 获取配置失败";
+	PLOGE << "egl 获取配置失败";
 	return CODE_ERROR;
   }
   if (!eglChooseConfig(eglDisplay, attribs, &eglConfig, numConfig, &numConfig)) {
-	PLOGD << "egl 配置失败";
+	PLOGE << "egl 配置失败";
 	return CODE_ERROR;
   }
   //创建EglContext
@@ -52,18 +54,18 @@ int EglHelper::InitEgl(EGLNativeWindowType win) {
   };
   eglContext = eglCreateContext(eglDisplay, eglConfig, EGL_NO_CONTEXT, attribList);
   if (eglContext == EGL_NO_CONTEXT) {
-	PLOGD << "egl 创建上下文失败";
+	PLOGE << "egl 创建上下文失败";
 	return CODE_ERROR;
   }
   //创建渲染的Surface
   eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, win, NULL);
   if (eglSurface == NULL) {
-	PLOGD << "egl 创建Surface失败";
+	PLOGE << "egl 创建Surface失败";
 	return CODE_ERROR;
   }
   //绑定EglContext和Surface到显示设备中
   if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
-	PLOGD << "egl 绑定EglContext和Surface失败";
+	PLOGE << "egl 绑定EglContext和Surface失败";
 	return CODE_ERROR;
   }
   PLOGD << "egl 初始化成功";
@@ -71,11 +73,11 @@ int EglHelper::InitEgl(EGLNativeWindowType win) {
 }
 int EglHelper::SwapBuffers() {
   if (eglDisplay == EGL_NO_DISPLAY || eglSurface == EGL_NO_SURFACE) {
-	PLOGD << "egl 还没初始化";
+	PLOGE << "egl 还没初始化";
 	return CODE_ERROR;
   }
   if (!eglSwapBuffers(eglDisplay, eglSurface)) {
-	PLOGD << "egl 刷新数据失败";
+	PLOGE << "egl 刷新数据失败";
 	return CODE_ERROR;
   }
   return CODE_SUCCESS;

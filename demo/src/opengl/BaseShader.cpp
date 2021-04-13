@@ -17,6 +17,7 @@ void BaseShader::OnChange(int width, int height) {
   this->height = height;
   this->width = width;
   glViewport(0, 0, width, height);
+  ResetMatrix();
 }
 void BaseShader::OnDraw() {
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -45,5 +46,8 @@ const char *BaseShader::GetVertex() {
 }
 const char *BaseShader::GetFragment() {
   return nullptr;
+}
+void BaseShader::ResetMatrix() {
+
 }
 
