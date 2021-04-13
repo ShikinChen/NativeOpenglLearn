@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
-    <me.shiki.nativeopengllearn.MySurfaceView
+    p<me.shiki.nativeopengllearn.MySurfaceView
         android:id="@+id/nsv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
