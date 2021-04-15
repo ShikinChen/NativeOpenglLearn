@@ -9,6 +9,7 @@
 #include "../src/demo/TextureMap.h"
 #include "../src/demo/NV21TextureMap.h"
 #include "../src/demo/VaoAndVbo.h"
+#include "../src/demo/FboOffscreenRendering.h"
 #include "../src/opengl//ShaderControl.h"
 #include "log.h"
 #endif //NATIVEOPENGLLEARN_DEMO_INCLUDE_HEADERS_H_

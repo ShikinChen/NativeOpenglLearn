@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.nsv)
     }
     private val demoList by lazy {
-        listOf("Triangle", "TextureMap", "NV21TextureMap","VaoAndVbo")
+        listOf("Triangle", "TextureMap", "NV21TextureMap", "VaoAndVbo", "FboOffscreenRendering")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +65,11 @@ class MainActivity : AppCompatActivity() {
             2 -> {
                 loadNV21Image("test02_720x510_nv21.yuv")?.let {
                     nsv.setImageData(index, MySurfaceView.IMAGE_FORMAT_NV21, 720, 510, it)
+                }
+            }
+            4 -> {
+                loadRGBAImage(R.drawable.test02)?.let {
+                    nsv.setImageData(index, MySurfaceView.IMAGE_FORMAT_RGBA, it)
                 }
             }
         }

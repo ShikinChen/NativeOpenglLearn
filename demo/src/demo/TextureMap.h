@@ -8,7 +8,6 @@
 #include "../include//ImageDef.h"
 #include "ImageDef.h"
 #include <glm/glm.hpp>
-using namespace glm;
 
 class TextureMap : public BaseShader {
  public:
@@ -26,8 +25,6 @@ class TextureMap : public BaseShader {
   GLuint s_TextureMap;
   GLuint u_Matrix;
   NativeImage img;
-  mat4 matrix;
-
 
  protected:
   const char *GetVertex() override;

@@ -24,15 +24,15 @@ class BaseShader {
   GLuint vertexShader;
   GLuint fragmentShader;
 
-  GLfloat *vertexs = nullptr;
-  GLfloat *fragments = nullptr;
+  GLfloat *vertexs;
+  GLfloat *fragments;
 
-  GLuint program = -1;
+  GLuint program;
   GLuint vbo;
   GLuint fbo;
 
-  int vertexsSize = 0;
-  int fragmentsSize = 0;
+  int vertexsSize;
+  int fragmentsSize;
 
  public:
   BaseShader(bool isDraw = true);

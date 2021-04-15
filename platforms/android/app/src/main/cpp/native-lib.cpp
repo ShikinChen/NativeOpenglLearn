@@ -19,6 +19,7 @@ JNIEXPORT void JNICALL native_Create(JNIEnv *env, jobject thiz, jobject surface)
 	shaderlControl->shaderlList.push_back(new TextureMap(false));
 	shaderlControl->shaderlList.push_back(new NV21TextureMap(false));
 	shaderlControl->shaderlList.push_back(new VaoAndVbo(false));
+	shaderlControl->shaderlList.push_back(new FboOffscreenRendering(false));
   }
   shaderlControl->OnSurfaceCreate(env, surface);
 }
@@ -75,6 +76,13 @@ JNIEXPORT void JNICALL native_SetImageData(JNIEnv *env,
 	  case 2: {
 		auto *item = dynamic_cast< NV21TextureMap *>( shaderlControl->shaderlList[index]);
 		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
+		item->ResetMatrix();
+	  }
+		break;
+	  case 4: {
+		auto *item = dynamic_cast< FboOffscreenRendering *>( shaderlControl->shaderlList[index]);
+		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
+		item->CreateFrameBufferObj();
 		item->ResetMatrix();
 	  }
 		break;
