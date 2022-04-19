@@ -9,7 +9,6 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
-import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,11 +17,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var selectedIndex = 0
+    private var selectedEffectIndex = 0
     private val nsv: MySurfaceView by lazy {
         findViewById(R.id.nsv)
     }
+    private var effectMenuItem: MenuItem? = null
+
     private val demoList by lazy {
-        listOf("Triangle", "TextureMap", "NV21TextureMap", "VaoAndVbo", "FboOffscreenRendering")
+        listOf("Triangle", "TextureMap", "NV21TextureMap", "VaoAndVbo", "FboOffscreenRendering", "EGL")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,18 +38,32 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
+        effectMenuItem = menu?.findItem(R.id.effect)
+        effectMenuItem?.isVisible = false
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        if (id == R.id.demo) {
-            MaterialDialog(this).show {
-                listItemsSingleChoice(
-                    items = demoList,
-                    initialSelection = selectedIndex
-                ) { dialog, index, text ->
-                    setDemo(index)
+        when (id) {
+            R.id.demo -> {
+                MaterialDialog(this).show {
+                    listItemsSingleChoice(
+                        items = demoList,
+                        initialSelection = selectedIndex
+                    ) { dialog, index, text ->
+                        setDemo(index)
+                    }
+                }
+            }
+            R.id.effect -> {
+                MaterialDialog(this).show {
+                    listItemsSingleChoice(
+                        items = listOf("普通渲染", "马赛克", "网格", "旋转", "边缘", "放大", "形变"),
+                        initialSelection = selectedEffectIndex
+                    ) { dialog, index, text ->
+                        selectedEffectIndex = index
+                    }
                 }
             }
         }
@@ -55,6 +71,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDemo(index: Int) {
+        if (effectMenuItem?.isVisible == true) {
+            effectMenuItem?.isVisible = false
+        }
         when (index) {
             //TextureMap
             1 -> {
@@ -71,6 +90,9 @@ class MainActivity : AppCompatActivity() {
                 loadRGBAImage(R.drawable.test02)?.let {
                     nsv.setImageData(index, MySurfaceView.IMAGE_FORMAT_RGBA, it)
                 }
+            }
+            5 -> {
+                effectMenuItem?.isVisible = true
             }
         }
         nsv.switchShader(selectedIndex, index)

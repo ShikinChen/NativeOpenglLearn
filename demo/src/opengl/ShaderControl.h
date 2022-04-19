@@ -4,7 +4,7 @@
 
 #ifndef NATIVEOPENGLLEARN_DEMO_SRC_OPENGLCONTROL_H_
 #define NATIVEOPENGLLEARN_DEMO_SRC_OPENGLCONTROL_H_
-#include "../egl/EglThread.h"
+#include "../egl/egl_thread.h"
 #include "BaseShader.h"
 #include <jni.h>
 #include <vector>

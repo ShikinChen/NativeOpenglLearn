@@ -72,7 +72,7 @@ void callbackSurfaceDestroy(void *context) {
 void ShaderControl::OnSurfaceCreate(JNIEnv *env, jobject surface) {
   nativeWindow = ANativeWindow_fromSurface(env, surface);
   eglThread = new EglThread();
-  eglThread->SetRenderType(HANDLE);
+  eglThread->set_render_type(HANDLE);
   eglThread->CallbackOnCreate(callbackSurfaceCreate, this);
   eglThread->CallbackOnChange(callbackSurfaceChange, this);
   eglThread->CallbackOnDraw(callbackSurfaceDraw, this);
@@ -104,7 +104,7 @@ void ShaderControl::OnSurfaceDestroy() {
   }
 }
 void ShaderControl::NotifyRender() {
-  if (eglThread && eglThread->GetRenderType() == HANDLE) {
+  if (eglThread && eglThread->render_type() == HANDLE) {
     eglThread->NotifyRender();
   }
 }

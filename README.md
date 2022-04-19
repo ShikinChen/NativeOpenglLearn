@@ -1,9 +1,14 @@
 ### 参考 <mark>字节流动</mark> 的[NDK_OpenGLES_3_0](https://github.com/githubhaohao/NDK_OpenGLES_3_0) 基于c++为主的OpenGL自学项目
+### 项目下载
+
+```shell
+  git clone https://github.com/ShikinChen/NativeOpenglLearn.git --recursive
+```
 
 ### 主要使用CLion开发(mac osx系统),需要在Preferences->Build,Execution,Deployment->CMake 添加一个ndk配置并且配置相关参数,也可以使用Android studio导入在 [platforms/android](./platforms/android)项目 
 
 ```shell
--DCMAKE_TOOLCHAIN_FILE="ndk的android.toolchain.cmake路径"
+-DCMAKE_TOOLCHAIN_FILE="ndk的路径/build/cmake/android.toolchain.cmake"
 -DCMAKE_SYSTEM_NAME=Android
 -DANDROID_ABI=arm64-v8a
 -DCMAKE_ANDROID_NDK="ndk的路径"

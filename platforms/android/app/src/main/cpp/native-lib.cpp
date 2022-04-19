@@ -20,6 +20,8 @@ JNIEXPORT void JNICALL native_Create(JNIEnv *env, jobject thiz, jobject surface)
 	shaderlControl->shaderlList.push_back(new NV21TextureMap(false));
 	shaderlControl->shaderlList.push_back(new VaoAndVbo(false));
 	shaderlControl->shaderlList.push_back(new FboOffscreenRendering(false));
+//	shaderlControl->shaderlList.push_back(new VaoAndVbo(false));
+	shaderlControl->shaderlList.push_back(new EGLRender(false));
   }
   shaderlControl->OnSurfaceCreate(env, surface);
 }
@@ -82,7 +84,7 @@ JNIEXPORT void JNICALL native_SetImageData(JNIEnv *env,
 	  case 4: {
 		auto *item = dynamic_cast< FboOffscreenRendering *>( shaderlControl->shaderlList[index]);
 		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
-		item->CreateFrameBufferObj();
+		item->isCreateFrameBufferObj = true;
 		item->ResetMatrix();
 	  }
 		break;
@@ -91,10 +93,6 @@ JNIEXPORT void JNICALL native_SetImageData(JNIEnv *env,
 	env->DeleteLocalRef(imageData);
   }
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 static JNINativeMethod g_NativeEglMethods[] = {
 	{"native_Create", "(Landroid/view/Surface;)V", (void *)(native_Create)},
@@ -134,7 +132,6 @@ static void UnregisterNativeMethods(JNIEnv *env, const char *className) {
   }
 }
 
-extern "C" {
 JNIEXPORT JNICALL jint JNI_OnLoad(JavaVM *jvm, void *reserved) {
   jint jniRet = JNI_ERR;
   JNIEnv *env = nullptr;
@@ -161,7 +158,7 @@ JNIEXPORT JNICALL jint JNI_OnLoad(JavaVM *jvm, void *reserved) {
   return JNI_VERSION_1_6;
 }
 
-extern "C" void JNI_OnUnload(JavaVM *jvm, void *p) {
+void JNI_OnUnload(JavaVM *jvm, void *p) {
   JNIEnv *env = nullptr;
   if (jvm->GetEnv((void **)(&env), JNI_VERSION_1_6) != JNI_OK) {
 	return;
@@ -170,4 +167,6 @@ extern "C" void JNI_OnUnload(JavaVM *jvm, void *p) {
   UnregisterNativeMethods(env, NATIVE_EGL_CLASS_NAME);
   UnregisterNativeMethods(env, MAIN_ACTIVITY_CLASS_NAME);
 }
+#ifdef __cplusplus
 }
+#endif

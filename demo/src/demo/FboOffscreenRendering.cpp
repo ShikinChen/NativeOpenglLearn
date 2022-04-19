@@ -9,6 +9,8 @@
 
 FboOffscreenRendering::FboOffscreenRendering(bool isDraw) : BaseShader(isDraw) {
   fbo_program = GL_NONE;
+  fboId = GL_NONE;
+  isCreateFrameBufferObj = true;
 }
 FboOffscreenRendering::~FboOffscreenRendering() {
   NativeImageUtil::FreeNativeImage(&img);
@@ -161,19 +163,23 @@ bool FboOffscreenRendering::OnCreate() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glBindTexture(GL_TEXTURE_2D, GL_NONE);
-
-  if (!CreateFrameBufferObj()) {
-	return false;
+  if (isCreateFrameBufferObj) {
+	if (!CreateFrameBufferObj()) {
+	  return false;
+	}
   }
   return true;
 }
 void FboOffscreenRendering::OnChange(int width, int height) {
-
   BaseShader::OnChange(width, height);
 }
 void FboOffscreenRendering::OnDraw() {
   BaseShader::OnDraw();
   if (program > GL_NONE && imgTextureId > GL_NONE && img.ppPlane[0]) {
+	if (isCreateFrameBufferObj) {
+	  CreateFrameBufferObj();
+	}
+
 	//屏幕渲染
 	glViewport(0, 0, width, height);
 	glUseProgram(program);
@@ -207,6 +213,7 @@ void FboOffscreenRendering::Destroy() {
   }
   if (fboId) {
 	glDeleteFramebuffers(1, &fboId);
+	fboId = GL_NONE;
   }
   BaseShader::Destroy();
 }
@@ -234,11 +241,14 @@ NativeImage *FboOffscreenRendering::GetImg() {
   return &img;
 }
 bool FboOffscreenRendering::CreateFrameBufferObj() {
+  //离屏渲染fbo一定要在egl线程调用
+  isCreateFrameBufferObj = false;
   if (program > GL_NONE) {
 	glBindTexture(GL_TEXTURE_2D, imgTextureId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width, img.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.ppPlane[0]);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
   }
+
   if (img.width > 0 && img.height > 0 && fbo_program > GL_NONE) {
 	glGenTextures(1, &fboTextureId);
 	glBindTexture(GL_TEXTURE_2D, fboTextureId);
@@ -248,7 +258,9 @@ bool FboOffscreenRendering::CreateFrameBufferObj() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
-	glGenFramebuffers(1, &fboId);
+	if (fboId == GL_NONE) {
+	  glGenFramebuffers(1, &fboId);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, fboId);
 	//将fbo绑定离屏纹理
 	glBindTexture(GL_TEXTURE_2D, fboTextureId);
@@ -256,6 +268,7 @@ bool FboOffscreenRendering::CreateFrameBufferObj() {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width, img.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 	  PLOGE << "创建离屏纹理失败";
 	  return false;

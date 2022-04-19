@@ -9,6 +9,8 @@
 
 class FboOffscreenRendering : public BaseShader {
  public:
+  bool isCreateFrameBufferObj;
+ public:
   FboOffscreenRendering(bool isDraw = true);
   virtual ~FboOffscreenRendering();
   bool OnCreate() override;
@@ -18,7 +20,7 @@ class FboOffscreenRendering : public BaseShader {
   void ResetMatrix() override;
 
   NativeImage *GetImg();
-  bool CreateFrameBufferObj();
+
 
  protected:
   const char *GetVertex() override;
@@ -38,6 +40,8 @@ class FboOffscreenRendering : public BaseShader {
   GLuint fbo_vertexShader;
   GLuint fbo_fragmentShader;
   NativeImage img;
+  bool CreateFrameBufferObj();
+
 };
 
 #endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_FBOOFFSCREENRENDERING_H_
