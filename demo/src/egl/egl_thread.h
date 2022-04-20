@@ -9,13 +9,14 @@
 #include<mutex>
 #include<thread>
 #include<condition_variable>
+#include "egl_lifecycle.h"
 
 enum RenderType {
   AUTO,
   HANDLE
 };
 
-const long long kFps = 1000/60;
+const long long kFps = 1000 / 60;
 
 class EglThread {
 
@@ -26,25 +27,9 @@ class EglThread {
   void OnSurfaceCreate(EGLNativeWindowType window);
   void OnSurfaceChange(int width, int height);
 
-  typedef void (*OnCreate)(void *context);
-  OnCreate onCreate = nullptr;
-  void *onCreateContext;
-
-  typedef void (*OnChange)(int width, int height, void *context);
-  OnChange onChange = nullptr;
-  void *onChangeContext;
-
-  typedef void (*OnDraw)(void *context);
-  OnDraw onDraw = nullptr;
-  void *onDrawContext;
-
-  typedef void (*OnDestroy)(void *context);
+  using OnDestroy = void (*)(void *context);
   OnDestroy onDestroy = nullptr;
   void *onDestroyContext;
-
-  void CallbackOnCreate(OnCreate onCreate, void *context);
-  void CallbackOnChange(OnChange onChange, void *context);
-  void CallbackOnDraw(OnDraw onDraw, void *context);
 
   void CallbackOnDestroy(OnDestroy onDestroy, void *context);
   void set_render_type(RenderType render_type);
@@ -52,19 +37,22 @@ class EglThread {
 
   void NotifyRender();
   void Destroy();
+  void set_egl_lifecycle(const std::weak_ptr<EglLifecycle> &egl_lifecycle);
 
  public:
   std::unique_ptr<std::thread> egl_thread_;
-  ANativeWindow *nativeWindow = nullptr;
+  ANativeWindow *native_window_ = nullptr;
 
   bool is_create_ = false;
   bool is_change_ = false;
   bool is_exit_ = false;
-  bool isStart = false;
-  int surfaceWidth = 0;
-  int surfaceHeight = 0;
+  bool is_start_ = false;
+  int surface_width_ = 0;
+  int surface_height_ = 0;
 
  private:
+  std::weak_ptr<EglLifecycle> egl_lifecycle_;
+
   std::mutex mutex_;
   std::condition_variable notify_render_;
   bool is_render_ = false;

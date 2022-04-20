@@ -2,7 +2,7 @@
 // Created by Shiki on 2021/4/13.
 //
 
-#include "FboOffscreenRendering.h"
+#include "fbo_offscreen_rendering.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "../util/ShaderUtils.h"
 #include "../include/ImageDef.h"
@@ -50,8 +50,8 @@ bool FboOffscreenRendering::OnCreate() {
 	  -1.0f, 1.0f, 0.0f,
 	  1.0f, 1.0f, 0.0f,
   };
-  vertexsSize = sizeof(v) / sizeof(v[0]);
-  vertexs = new float[vertexsSize];
+  vertexs_size_ = sizeof(v) / sizeof(v[0]);
+  vertexs = new float[vertexs_size_];
   memcpy(vertexs, v, sizeof(v));
 
   GLfloat f[] = {
@@ -60,8 +60,8 @@ bool FboOffscreenRendering::OnCreate() {
 	  0.0f, 0.0f,
 	  1.0f, 0.0f,
   };
-  fragmentsSize = sizeof(f) / sizeof(f[0]);
-  fragments = new float[fragmentsSize];
+  fragments_size_ = sizeof(f) / sizeof(f[0]);
+  fragments = new float[fragments_size_];
   memcpy(fragments, f, sizeof(f));
 
 //fbo 纹理坐标与正常纹理方向不同，原点位于左下角
@@ -96,10 +96,10 @@ bool FboOffscreenRendering::OnCreate() {
 
   glGenBuffers(4, vboIds);
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-  glBufferData(GL_ARRAY_BUFFER, vertexsSize * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertexs_size_ * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[1]);
-  glBufferData(GL_ARRAY_BUFFER, fragmentsSize * sizeof(GLfloat), fragments, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, fragments_size_ * sizeof(GLfloat), fragments, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[2]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_f), fbo_f, GL_STATIC_DRAW);
@@ -216,6 +216,7 @@ void FboOffscreenRendering::Destroy() {
 	fboId = GL_NONE;
   }
   BaseShader::Destroy();
+  NativeImageUtil::FreeNativeImage(&img);
 }
 void FboOffscreenRendering::ResetMatrix() {
   if (img.width <= 0 || img.height <= 0 || width <= 0 || height <= 0) {

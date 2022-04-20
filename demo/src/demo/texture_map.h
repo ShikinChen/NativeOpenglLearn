@@ -4,7 +4,7 @@
 
 #ifndef NATIVEOPENGLLEARN_DEMO_SRC_DEMO_TEXTURE_MAP_H_
 #define NATIVEOPENGLLEARN_DEMO_SRC_DEMO_TEXTURE_MAP_H_
-#include "../opengl/BaseShader.h"
+#include "../opengl/base_shader.h"
 #include "../include//ImageDef.h"
 #include "ImageDef.h"
 #include <glm/glm.hpp>

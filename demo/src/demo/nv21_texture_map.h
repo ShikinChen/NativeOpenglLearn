@@ -2,9 +2,9 @@
 // Created by Shiki on 2021/4/13.
 //
 
-#ifndef NATIVEOPENGLLEARN_DEMO_SRC_DEMO_NV21TEXTUREMAP_H_
-#define NATIVEOPENGLLEARN_DEMO_SRC_DEMO_NV21TEXTUREMAP_H_
-#include "../opengl/BaseShader.h"
+#ifndef NATIVEOPENGLLEARN_DEMO_SRC_DEMO_NV21_TEXTURE_MAP_H_
+#define NATIVEOPENGLLEARN_DEMO_SRC_DEMO_NV21_TEXTURE_MAP_H_
+#include "../opengl/base_shader.h"
 #include "../include/ImageDef.h"
 
 
@@ -35,4 +35,4 @@ class NV21TextureMap : public BaseShader {
   void ResetMatrix() override;
 };
 
-#endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_NV21TEXTUREMAP_H_
+#endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_NV21_TEXTURE_MAP_H_

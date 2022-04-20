@@ -2,11 +2,11 @@
 // Created by Shiki on 2021/4/15.
 //
 
-#include "EGLRender.h"
+#include "egl_render.h"
 EGLRender::~EGLRender() {
   index = 0;
 }
-EGLRender::EGLRender(bool isDraw) : BaseShader(isDraw) {
+EGLRender::EGLRender(bool is_draw) : BaseShader(is_draw) {
 
 }
 

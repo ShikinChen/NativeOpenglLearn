@@ -2,9 +2,9 @@
 // Created by Shiki on 2021/4/13.
 //
 
-#ifndef NATIVEOPENGLLEARN_DEMO_SRC_DEMO_FBOOFFSCREENRENDERING_H_
-#define NATIVEOPENGLLEARN_DEMO_SRC_DEMO_FBOOFFSCREENRENDERING_H_
-#include "../opengl/BaseShader.h"
+#ifndef NATIVEOPENGLLEARN_DEMO_SRC_DEMO_FBO_OFFSCREEN_RENDERING_H_
+#define NATIVEOPENGLLEARN_DEMO_SRC_DEMO_FBO_OFFSCREEN_RENDERING_H_
+#include "../opengl/base_shader.h"
 #include "../include/ImageDef.h"
 
 class FboOffscreenRendering : public BaseShader {
@@ -44,4 +44,4 @@ class FboOffscreenRendering : public BaseShader {
 
 };
 
-#endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_FBOOFFSCREENRENDERING_H_
+#endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_FBO_OFFSCREEN_RENDERING_H_

@@ -3,7 +3,7 @@
 //
 
 #include "egl_thread.h"
-#include "EglHelper.h"
+#include "egl_helper.h"
 #include <chrono>
 
 EglThread::EglThread() {
@@ -13,33 +13,34 @@ EglThread::~EglThread() {
 }
 
 void EglThread::Run() {
-  EglHelper *eglHelper = new EglHelper();
-  eglHelper->InitEgl(nativeWindow);
+  EglHelper eglHelper;
+  eglHelper.InitEgl(native_window_);
   is_exit_ = false;
   while (!is_exit_) {
+	auto egl_lifecycle = egl_lifecycle_.lock();
 	if (is_create_) {
 	  PLOGD << "egl_thread_ create";
 	  is_create_ = false;
-	  if (onCreate) {
-		onCreate(onCreateContext);
+	  if (egl_lifecycle) {
+		egl_lifecycle->OnCreate();
 	  }
 	}
 
 	if (is_change_) {
 	  PLOGD << "egl_thread_ change";
 	  is_change_ = false;
-	  if (onChange) {
-		onChange(surfaceWidth, surfaceHeight, onChangeContext);
+	  if (egl_lifecycle) {
+		egl_lifecycle->OnChange(surface_width_, surface_height_);
 	  }
-	  isStart = true;
+	  is_start_ = true;
 	}
-	if (isStart) {
-	  if (onDraw) {
+	if (is_start_) {
+	  if (egl_lifecycle) {
 		std::lock_guard<std::mutex> locker(mutex_);
-		onDraw(onDrawContext);
+		egl_lifecycle->OnDraw();
 		is_render_ = false;
 	  }
-	  eglHelper->SwapBuffers();
+	  eglHelper.SwapBuffers();
 	}
 	switch (render_type()) {
 	  case AUTO: {
@@ -60,35 +61,24 @@ void EglThread::Run() {
 	onDestroy(onDestroyContext);
   }
   PLOGD << "egl_thread_ destroy";
-  eglHelper->Destroy();
-  delete eglHelper;
-  eglHelper = nullptr;
+  eglHelper.Destroy();
+//  delete eglHelper;
+//  eglHelper = nullptr;
 }
 
 void EglThread::OnSurfaceCreate(EGLNativeWindowType window) {
   is_create_ = true;
-  nativeWindow = window;
+  native_window_ = window;
   egl_thread_ = std::make_unique<std::thread>(&EglThread::Run, this);
 }
 
 void EglThread::OnSurfaceChange(int width, int height) {
   is_change_ = true;
-  surfaceHeight = height;
-  surfaceWidth = width;
+  surface_height_ = height;
+  surface_width_ = width;
   NotifyRender();
 }
-void EglThread::CallbackOnCreate(EglThread::OnCreate onCreate, void *context) {
-  this->onCreate = onCreate;
-  this->onCreateContext = context;
-}
-void EglThread::CallbackOnChange(EglThread::OnChange onChange, void *context) {
-  this->onChange = onChange;
-  this->onChangeContext = context;
-}
-void EglThread::CallbackOnDraw(EglThread::OnDraw onDraw, void *context) {
-  this->onDraw = onDraw;
-  this->onDrawContext = context;
-}
+
 void EglThread::CallbackOnDestroy(EglThread::OnDestroy onDestroy, void *context) {
   this->onDestroy = onDestroy;
   onDestroyContext = context;
@@ -115,10 +105,12 @@ void EglThread::Destroy() {
   if (egl_thread_) {
 	egl_thread_->join();
   }
-  delete nativeWindow;
-  nativeWindow = nullptr;
+  native_window_ = nullptr;
 }
 RenderType EglThread::render_type() {
   std::lock_guard<std::mutex> locker(mutex_);
   return render_type_;
+}
+void EglThread::set_egl_lifecycle(const std::weak_ptr<EglLifecycle> &egl_lifecycle) {
+  egl_lifecycle_ = egl_lifecycle;
 }

@@ -2,8 +2,8 @@
 // Created by Shiki on 2021/4/7.
 //
 
-#ifndef NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASESHADER_H_
-#define NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASESHADER_H_
+#ifndef NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASE_SHADER_H_
+#define NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASE_SHADER_H_
 #include <GLES3/gl3.h>
 #include <glm/glm.hpp>
 
@@ -19,10 +19,10 @@ class BaseShader {
  public:
   int width;
   int height;
-  bool isDraw = true;
+  bool is_draw_ = true;
 
-  GLuint vertexShader;
-  GLuint fragmentShader;
+  GLuint vertex_shader_;
+  GLuint fragment_shader_;
 
   GLfloat *vertexs;
   GLfloat *fragments;
@@ -31,11 +31,11 @@ class BaseShader {
   GLuint vbo;
   GLuint fbo;
 
-  int vertexsSize;
-  int fragmentsSize;
+  int vertexs_size_;
+  int fragments_size_;
 
  public:
-  BaseShader(bool isDraw = true);
+  BaseShader(bool is_draw = true);
 
   virtual ~BaseShader();
 
@@ -51,4 +51,4 @@ class BaseShader {
 
 };
 
-#endif //NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASESHADER_H_
+#endif //NATIVEOPENGLLEARN_DEMO_SRC_OPENGL_BASE_SHADER_H_

@@ -2,7 +2,7 @@
 // Created by Shiki on 2021/4/13.
 //
 
-#include "NV21TextureMap.h"
+#include "nv21_texture_map.h"
 #include <glm/gtc/type_ptr.hpp>
 
 NV21TextureMap::NV21TextureMap(bool isDraw) : BaseShader(isDraw) {
@@ -55,8 +55,8 @@ bool NV21TextureMap::OnCreate() {
 	  1.0f, -1.0f, 0.0f,
 	  1.0f, 1.0f, 0.0f,
   };
-  vertexsSize = sizeof(v) / sizeof(v[0]);
-  vertexs = new float[vertexsSize];
+  vertexs_size_ = sizeof(v) / sizeof(v[0]);
+  vertexs = new float[vertexs_size_];
   memcpy(vertexs, v, sizeof(v));
 
   GLfloat f[] = {
@@ -66,8 +66,8 @@ bool NV21TextureMap::OnCreate() {
 	  1.0f, 0.0f,
   };
 
-  fragmentsSize = sizeof(f) / sizeof(f[0]);
-  fragments = new float[fragmentsSize];
+  fragments_size_ = sizeof(f) / sizeof(f[0]);
+  fragments = new float[fragments_size_];
   memcpy(fragments, f, sizeof(f));
 
   GLuint textureIds[2] = {0};
@@ -160,6 +160,7 @@ void NV21TextureMap::Destroy() {
 	glDeleteTextures(1, &uvTextureId);
   }
   BaseShader::Destroy();
+  NativeImageUtil::FreeNativeImage(&img);
 }
 NativeImage *NV21TextureMap::GetImg() {
   return &img;

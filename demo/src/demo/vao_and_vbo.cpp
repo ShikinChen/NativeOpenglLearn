@@ -2,7 +2,7 @@
 // Created by Shiki on 2021/4/13.
 //
 
-#include "VaoAndVbo.h"
+#include "vao_and_vbo.h"
 #include <string>
 
 #define VERTEX_POS_SIZE       3
@@ -65,14 +65,14 @@ bool VaoAndVbo::OnCreate() {
 	  0.5f, 0.5f, 0.0f,
 	  0.5f, 1.0f, 1.0f, 1.0f,
   };
-  vertexsSize = sizeof(v) / sizeof(v[0]);
-  vertexs = new float[vertexsSize];
+  vertexs_size_ = sizeof(v) / sizeof(v[0]);
+  vertexs = new float[vertexs_size_];
   memcpy(vertexs, v, sizeof(v));
 
   glGenBuffers(2, vboIds);
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
   //vertexs只是指针不足有实际数组长度和数组内存大小
-  glBufferData(GL_ARRAY_BUFFER, vertexsSize * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertexs_size_ * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
 
   GLushort indices[] = {0, 1, 2, 0, 2, 3};
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);

@@ -11,17 +11,17 @@ JavaVM *javaVm = NULL;
 #ifdef __cplusplus
 extern "C" {
 #endif
-ShaderControl *shaderlControl = nullptr;
+shared_ptr<ShaderControl> shaderlControl;
 JNIEXPORT void JNICALL native_Create(JNIEnv *env, jobject thiz, jobject surface) {
   if (!shaderlControl) {
-	shaderlControl = new ShaderControl();
-	shaderlControl->shaderlList.push_back(new Triangle());
-	shaderlControl->shaderlList.push_back(new TextureMap(false));
-	shaderlControl->shaderlList.push_back(new NV21TextureMap(false));
-	shaderlControl->shaderlList.push_back(new VaoAndVbo(false));
-	shaderlControl->shaderlList.push_back(new FboOffscreenRendering(false));
-//	shaderlControl->shaderlList.push_back(new VaoAndVbo(false));
-	shaderlControl->shaderlList.push_back(new EGLRender(false));
+	shaderlControl = make_shared<ShaderControl>();
+	shaderlControl->AddShader(std::make_shared<Triangle>());
+	shaderlControl->AddShader(std::make_shared<TextureMap>(false));
+	shaderlControl->AddShader(std::make_shared<NV21TextureMap>(false));
+	shaderlControl->AddShader(std::make_shared<VaoAndVbo>(false));
+	shaderlControl->AddShader(std::make_shared<FboOffscreenRendering>(false));
+//	shaderlControl->shader_list_.push_back(new VaoAndVbo(false));
+	shaderlControl->AddShader(std::make_shared<EGLRender>(false));
   }
   shaderlControl->OnSurfaceCreate(env, surface);
 }
@@ -35,20 +35,11 @@ JNIEXPORT void JNICALL native_Change(JNIEnv *env, jobject thiz, jint width, jint
 JNIEXPORT void JNICALL native_Destroy(JNIEnv *env, jobject thiz) {
   if (shaderlControl) {
 	shaderlControl->OnSurfaceDestroy();
-	delete shaderlControl;
-	shaderlControl = nullptr;
   }
 }
 
 JNIEXPORT void JNICALL native_SwitchShader(JNIEnv *env, jobject thiz, jint unSelIndex, jint selIndex) {
-  if (shaderlControl) {
-	auto list = shaderlControl->shaderlList;
-	if (unSelIndex < list.size() && selIndex < list.size()) {
-	  shaderlControl->shaderlList[unSelIndex]->isDraw = false;
-	  shaderlControl->shaderlList[selIndex]->isDraw = true;
-	  shaderlControl->NotifyRender();
-	}
-  }
+  shaderlControl->SwitchShader(unSelIndex, selIndex);
 }
 
 JNIEXPORT void JNICALL native_NotifyRender(JNIEnv *env, jobject thiz) {
@@ -70,19 +61,19 @@ JNIEXPORT void JNICALL native_SetImageData(JNIEnv *env,
 	env->GetByteArrayRegion(imageData, 0, len, reinterpret_cast<jbyte *>(buf));
 	switch (index) {
 	  case 1: {
-		auto *item = dynamic_cast< TextureMap *>( shaderlControl->shaderlList[index]);
+		auto item = dynamic_pointer_cast<TextureMap>(shaderlControl->GetShader(index));
 		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
 		item->ResetMatrix();
 	  }
 		break;
 	  case 2: {
-		auto *item = dynamic_cast< NV21TextureMap *>( shaderlControl->shaderlList[index]);
+		auto item = dynamic_pointer_cast<NV21TextureMap>(shaderlControl->GetShader(index));
 		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
 		item->ResetMatrix();
 	  }
 		break;
 	  case 4: {
-		auto *item = dynamic_cast< FboOffscreenRendering *>( shaderlControl->shaderlList[index]);
+		auto item = dynamic_pointer_cast<FboOffscreenRendering>(shaderlControl->GetShader(index));
 		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
 		item->isCreateFrameBufferObj = true;
 		item->ResetMatrix();

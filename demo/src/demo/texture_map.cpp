@@ -2,7 +2,7 @@
 // Created by Shiki on 2021/4/8.
 //
 
-#include "TextureMap.h"
+#include "texture_map.h"
 #include <plog/Log.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -46,8 +46,8 @@ bool TextureMap::OnCreate() {
 	  1.0f, -0.5f, 0.0f,
 	  1.0f, 0.5f, 0.0f,
   };
-  vertexsSize = sizeof(v) / sizeof(v[0]);
-  vertexs = new float[vertexsSize];
+  vertexs_size_ = sizeof(v) / sizeof(v[0]);
+  vertexs = new float[vertexs_size_];
   memcpy(vertexs, v, sizeof(v));
 
   GLfloat f[] = {
@@ -56,8 +56,8 @@ bool TextureMap::OnCreate() {
 	  1.0f, 1.0f,
 	  1.0f, 0.0f,
   };
-  fragmentsSize = sizeof(f) / sizeof(f[0]);
-  fragments = new float[fragmentsSize];
+  fragments_size_ = sizeof(f) / sizeof(f[0]);
+  fragments = new float[fragments_size_];
   memcpy(fragments, f, sizeof(f));
 
   glGenTextures(1, &textureId);
@@ -117,6 +117,7 @@ void TextureMap::Destroy() {
 	glDeleteTextures(1, &textureId);
   }
   BaseShader::Destroy();
+  NativeImageUtil::FreeNativeImage(&img);
 }
 NativeImage *TextureMap::GetImg() {
   return &img;

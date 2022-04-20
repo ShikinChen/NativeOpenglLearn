@@ -2,26 +2,26 @@
 // Created by Shiki on 2021/4/4.
 //
 
-#include "EglHelper.h"
+#include "egl_helper.h"
 #include "Constants.h"
 #include <EGL/eglext.h>
 
 EglHelper::EglHelper() {}
 
 EglHelper::~EglHelper() {
-
+  Destroy();
 }
 
 int EglHelper::InitEgl(EGLNativeWindowType win) {
   //得到默认的显示设备（就是窗口）
-  eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  if (eglDisplay == NULL) {
-	PLOGE << "eglDisplay 获取失败";
+  egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  if (egl_display_ == NULL) {
+	PLOGE << "egl_display_ 获取失败";
 	return CODE_ERROR;
   }
   //初始化默认显示设备
   EGLint *version = new EGLint[2];
-  if (!eglInitialize(eglDisplay, &version[0], &version[1])) {
+  if (!eglInitialize(egl_display_, &version[0], &version[1])) {
 	PLOGE << "egl 初始化失败";
 	return CODE_ERROR;
   }
@@ -39,11 +39,11 @@ int EglHelper::InitEgl(EGLNativeWindowType win) {
   };
   EGLint numConfig;
   //从系统中获取对应属性的配置
-  if (!eglChooseConfig(eglDisplay, attribs, NULL, 1, &numConfig)) {
+  if (!eglChooseConfig(egl_display_, attribs, nullptr, 1, &numConfig)) {
 	PLOGE << "egl 获取配置失败";
 	return CODE_ERROR;
   }
-  if (!eglChooseConfig(eglDisplay, attribs, &eglConfig, numConfig, &numConfig)) {
+  if (!eglChooseConfig(egl_display_, attribs, &egl_config_, numConfig, &numConfig)) {
 	PLOGE << "egl 配置失败";
 	return CODE_ERROR;
   }
@@ -52,19 +52,19 @@ int EglHelper::InitEgl(EGLNativeWindowType win) {
 	  EGL_CONTEXT_CLIENT_VERSION, 3,
 	  EGL_NONE,
   };
-  eglContext = eglCreateContext(eglDisplay, eglConfig, EGL_NO_CONTEXT, attribList);
-  if (eglContext == EGL_NO_CONTEXT) {
+  egl_context_ = eglCreateContext(egl_display_, egl_config_, EGL_NO_CONTEXT, attribList);
+  if (egl_context_ == EGL_NO_CONTEXT) {
 	PLOGE << "egl 创建上下文失败";
 	return CODE_ERROR;
   }
   //创建渲染的Surface
-  eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, win, NULL);
-  if (eglSurface == NULL) {
+  egl_surface_ = eglCreateWindowSurface(egl_display_, egl_config_, win, nullptr);
+  if (!egl_surface_) {
 	PLOGE << "egl 创建Surface失败";
 	return CODE_ERROR;
   }
   //绑定EglContext和Surface到显示设备中
-  if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
+  if (!eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_)) {
 	PLOGE << "egl 绑定EglContext和Surface失败";
 	return CODE_ERROR;
   }
@@ -72,30 +72,30 @@ int EglHelper::InitEgl(EGLNativeWindowType win) {
   return CODE_SUCCESS;
 }
 int EglHelper::SwapBuffers() {
-  if (eglDisplay == EGL_NO_DISPLAY || eglSurface == EGL_NO_SURFACE) {
+  if (egl_display_ == EGL_NO_DISPLAY || egl_surface_ == EGL_NO_SURFACE) {
 	PLOGE << "egl 还没初始化";
 	return CODE_ERROR;
   }
-  if (!eglSwapBuffers(eglDisplay, eglSurface)) {
+  if (!eglSwapBuffers(egl_display_, egl_surface_)) {
 	PLOGE << "egl 刷新数据失败";
 	return CODE_ERROR;
   }
   return CODE_SUCCESS;
 }
 void EglHelper::Destroy() {
-  if (eglDisplay != EGL_NO_DISPLAY) {
-	eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+  if (egl_display_ != EGL_NO_DISPLAY) {
+	eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
   }
-  if (eglDisplay != EGL_NO_DISPLAY && eglSurface != EGL_NO_SURFACE) {
-	eglDestroySurface(eglDisplay, eglSurface);
-	eglSurface = EGL_NO_SURFACE;
+  if (egl_display_ != EGL_NO_DISPLAY && egl_surface_ != EGL_NO_SURFACE) {
+	eglDestroySurface(egl_display_, egl_surface_);
+	egl_surface_ = EGL_NO_SURFACE;
   }
-  if (eglDisplay != EGL_NO_DISPLAY && eglContext != EGL_NO_CONTEXT) {
-	eglDestroyContext(eglDisplay, eglContext);
-	eglContext = EGL_NO_CONTEXT;
+  if (egl_display_ != EGL_NO_DISPLAY && egl_context_ != EGL_NO_CONTEXT) {
+	eglDestroyContext(egl_display_, egl_context_);
+	egl_context_ = EGL_NO_CONTEXT;
   }
-  if (eglDisplay != EGL_NO_DISPLAY) {
-	eglTerminate(eglDisplay);
-	eglDisplay = EGL_NO_DISPLAY;
+  if (egl_display_ != EGL_NO_DISPLAY) {
+	eglTerminate(egl_display_);
+	egl_display_ = EGL_NO_DISPLAY;
   }
 }

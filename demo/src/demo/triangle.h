@@ -4,7 +4,7 @@
 
 #ifndef NATIVEOPENGLLEARN_DEMO_SRC_DEMO_TRIANGLE_H_
 #define NATIVEOPENGLLEARN_DEMO_SRC_DEMO_TRIANGLE_H_
-#include "../opengl/BaseShader.h"
+#include "../opengl/base_shader.h"
 class Triangle : public BaseShader {
  public:
   Triangle(bool isDraw = true);

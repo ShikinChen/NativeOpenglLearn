@@ -2,7 +2,7 @@
 // Created by Shiki on 2021/4/8.
 //
 
-#include "Triangle.h"
+#include "triangle.h"
 #include <plog/Log.h>
 Triangle::Triangle(bool isDraw) : BaseShader(isDraw) {
 
@@ -37,8 +37,8 @@ bool Triangle::OnCreate() {
 	  -0.5f, -0.5f, 0.0f,
 	  0.5f, -0.5f, 0.0f,
   };
-  vertexsSize = sizeof(v) / sizeof(v[0]);
-  vertexs = new float[vertexsSize];
+  vertexs_size_ = sizeof(v) / sizeof(v[0]);
+  vertexs = new float[vertexs_size_];
   memcpy(vertexs, v, sizeof(v));
   return true;
 }
