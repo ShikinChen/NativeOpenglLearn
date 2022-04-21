@@ -22,10 +22,6 @@ class FboOffscreenRendering : public BaseShader {
   NativeImage *GetImg();
 
 
- protected:
-  const char *GetVertex() override;
-  const char *GetFragment() override;
-
  private:
   GLuint imgTextureId;
   GLuint fboTextureId;

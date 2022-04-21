@@ -14,9 +14,6 @@ class VaoAndVbo : public BaseShader {
   void OnChange(int width, int height) override;
   void OnDraw() override;
   void Destroy() override;
- protected:
-  const char *GetVertex() override;
-  const char *GetFragment() override;
  private:
   GLuint vaoId;
   GLuint vboIds[2];

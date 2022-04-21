@@ -4,48 +4,20 @@
 
 #include "nv21_texture_map.h"
 #include <glm/gtc/type_ptr.hpp>
+#include "../util/asset_manager_utils.h"
 
 NV21TextureMap::NV21TextureMap(bool isDraw) : BaseShader(isDraw) {
 }
 NV21TextureMap::~NV21TextureMap() {
   BaseShader::~BaseShader();
-  NativeImageUtil::FreeNativeImage(&img);
-}
-
-const char *NV21TextureMap::GetVertex() {
-  return "#version 300 es                          \n"
-		 "layout(location = 0) in vec4 v_Position;  \n"
-		 "layout(location = 1) in vec2 f_Position;  \n"
-		 "out vec2 v_texCoord;  					\n"
-		 "uniform mat4 u_Matrix;  				    \n"
-		 "void main()                              \n"
-		 "{                                        \n"
-		 "   gl_Position = v_Position*u_Matrix;   \n"
-		 "   v_texCoord = f_Position;              \n"
-		 "}                                        \n";
-}
-const char *NV21TextureMap::GetFragment() {
-  return "#version 300 es                              \n"
-		 "precision mediump float;                     \n"
-		 "in vec2 v_texCoord;  							\n"
-		 "layout(location = 0) out vec4 outColor;  		\n"
-		 "uniform sampler2D y_Texture;  				\n"
-		 "uniform sampler2D uv_Texture;  				\n"
-		 "void main()                                  \n"
-		 "{                                            \n"
-		 "  vec3 yuv;  									\n"
-		 "  yuv.x=texture(y_Texture,v_texCoord).r;		\n"
-		 "  yuv.y=texture(uv_Texture,v_texCoord).a-0.5;		\n"
-		 "  yuv.z=texture(uv_Texture,v_texCoord).r-0.5;		\n"
-		 "	highp vec3 rgb = mat3( 1,       1,       	1,	\n"
-		 "               0, 		-0.344, 	1.770,		\n"
-		 "               1.403,  -0.714,       0) * yuv; 	\n"
-		 "   outColor = vec4(rgb, 1);  					\n"
-		 "}                                            \n";
+  NativeImageUtil::FreeNativeImage(&img_);
 }
 
 bool NV21TextureMap::OnCreate() {
   PLOGD << "OnCreate";
+  vsh_ = AssetManagerUtils::GetInstance()->read("nv21_texture_map/vert.glsl");
+  fsh_ = AssetManagerUtils::GetInstance()->read("nv21_texture_map/frag.glsl");
+
   if (!BaseShader::OnCreate()) {
 	return false;
   }
@@ -90,10 +62,10 @@ bool NV21TextureMap::OnCreate() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
-  if (program > 0) {
-	y_Texture = glGetUniformLocation(program, "y_Texture");
-	uv_Texture = glGetUniformLocation(program, "uv_Texture");
-	u_Matrix = glGetUniformLocation(program, "u_Matrix");
+  if (shader_program_.program() > 0) {
+	y_Texture = glGetUniformLocation(shader_program_.program(), "y_Texture");
+	uv_Texture = glGetUniformLocation(shader_program_.program(), "uv_Texture");
+	u_Matrix = glGetUniformLocation(shader_program_.program(), "u_matrix");
   }
   return true;
 }
@@ -103,33 +75,33 @@ void NV21TextureMap::OnChange(int width, int height) {
 
 void NV21TextureMap::OnDraw() {
   BaseShader::OnDraw();
-  if (program > GL_NONE && yTextureId > GL_NONE && uvTextureId > GL_NONE && img.ppPlane[0]) {
+  if (shader_program_.program() > GL_NONE && yTextureId > GL_NONE && uvTextureId > GL_NONE && img_.ppPlane[0]) {
 
 	glBindTexture(GL_TEXTURE_2D, yTextureId);
 	glTexImage2D(GL_TEXTURE_2D,
 				 0,
 				 GL_LUMINANCE,
-				 img.width,
-				 img.height,
+				 img_.width,
+				 img_.height,
 				 0,
 				 GL_LUMINANCE,
 				 GL_UNSIGNED_BYTE,
-				 img.ppPlane[0]);
+				 img_.ppPlane[0]);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
 	glBindTexture(GL_TEXTURE_2D, uvTextureId);
 	glTexImage2D(GL_TEXTURE_2D,
 				 0,
 				 GL_LUMINANCE_ALPHA,
-				 img.width >> 1,
-				 img.height >> 1,
+				 img_.width >> 1,
+				 img_.height >> 1,
 				 0,
 				 GL_LUMINANCE_ALPHA,
 				 GL_UNSIGNED_BYTE,
-				 img.ppPlane[1]);
+				 img_.ppPlane[1]);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
-	glUseProgram(program);
+	glUseProgram(shader_program_.program());
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, yTextureId);
@@ -155,32 +127,32 @@ void NV21TextureMap::OnDraw() {
 }
 void NV21TextureMap::Destroy() {
   PLOGD << "Destroy";
-  if (program > 0) {
+  if (shader_program_.program() > 0) {
 	glDeleteTextures(1, &yTextureId);
 	glDeleteTextures(1, &uvTextureId);
   }
   BaseShader::Destroy();
-  NativeImageUtil::FreeNativeImage(&img);
+  NativeImageUtil::FreeNativeImage(&img_);
 }
-NativeImage *NV21TextureMap::GetImg() {
-  return &img;
+NativeImage *NV21TextureMap::img() {
+  return &img_;
 }
 void NV21TextureMap::ResetMatrix() {
-  if (img.width <= 0 || img.height <= 0 || width <= 0 || height <= 0) {
+  if (img_.width <= 0 || img_.height <= 0 || width <= 0 || height <= 0) {
 	return;
   }
   float sreen_r = width * 1.0 / height;
-  float img_r = img.width * 1.0 / img.height;
+  float img_r = img_.width * 1.0 / img_.height;
 
   float lr = 1.0f;
   float tb = 1.0f;
   if (sreen_r > img_r) {//宽度缩放
-	lr = width / (height * 1.0 / img.height * img.width);
+	lr = width / (height * 1.0 / img_.height * img_.width);
 	//这里top和bottom为1.0对应回顶点坐标1.0
 	tb = 1.0f;
 
   } else {//高度缩放
-	tb = height / (width * 1.0 / img.width * img.height);
+	tb = height / (width * 1.0 / img_.width * img_.height);
 	lr = 1.0f;
   }
   matrix = glm::ortho(-lr, lr, -tb, tb);

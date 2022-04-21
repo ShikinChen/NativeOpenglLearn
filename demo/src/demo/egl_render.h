@@ -17,9 +17,7 @@ class EGLRender : public BaseShader {
   void OnChange(int width, int height) override;
   void OnDraw() override;
   void Destroy() override;
- protected:
-  const char *GetVertex() override;
-  const char *GetFragment() override;
+
 };
 
 #endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_EGL_RENDER_H_

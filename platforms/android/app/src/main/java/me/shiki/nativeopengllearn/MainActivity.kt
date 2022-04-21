@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.nsv)
     }
     private var effectMenuItem: MenuItem? = null
+    private var demoMenuItem: MenuItem? = null
 
     private val demoList by lazy {
         listOf("Triangle", "TextureMap", "NV21TextureMap", "VaoAndVbo", "FboOffscreenRendering", "EGL")
@@ -36,9 +37,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         effectMenuItem = menu?.findItem(R.id.effect)
+        demoMenuItem = menu?.findItem(R.id.demo)
         effectMenuItem?.isVisible = false
         return true
     }

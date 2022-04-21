@@ -4,6 +4,8 @@
 
 #include "vao_and_vbo.h"
 #include <string>
+#include <plog/Log.h>
+#include "../util/asset_manager_utils.h"
 
 #define VERTEX_POS_SIZE       3
 #define VERTEX_COLOR_SIZE     4
@@ -16,42 +18,11 @@ VaoAndVbo::~VaoAndVbo() {
 
 }
 
-const char *VaoAndVbo::GetVertex() {
-  return "#version 300 es                          	\n"
-		 "layout(location = 0) in vec4 a_position;  \n"
-		 "layout(location = 1) in vec4 a_color;  	\n"
-		 "out vec4 v_color;  						\n"
-		 "out vec4 v_position;  					\n"
-		 "void main()                             	\n"
-		 "{                                        	\n"
-		 "   v_color = a_color;   					\n"
-		 "   gl_Position = a_position;              \n"
-		 "   v_position = a_position;              	\n"
-		 "}                                        	\n";
-}
-const char *VaoAndVbo::GetFragment() {
-  return "#version 300 es                              	\n"
-		 "precision mediump float;                     	\n"
-		 "in vec4 v_color;  							\n"
-		 "in vec4 v_position;  							\n"
-		 "out vec4 o_fragColor;  						\n"
-		 "void main()                                  	\n"
-		 "{                                            	\n"
-		 "  float n=10.0;  								\n"
-		 "  float span=1.0/n;							\n"
-		 "  int i=int((v_position.x+0.5)/span);			\n"
-		 "  int j=int((v_position.y+0.5)/span);			\n"
-		 "  int grayColor=int(mod(float(i+j),2.0));		\n"
-		 "  if(grayColor==1){							\n"
-		 "		float luminance=v_color.r*0.299+v_color.g*0.587+v_color.b*0.114; 	\n"
-		 "		o_fragColor=vec4(vec3(luminance),v_color.a); 						\n"
-		 "	}else{										\n"
-		 "		o_fragColor=v_color;					\n"
-		 "  }  											\n"
-		 "}                                            	\n";
-}
-
 bool VaoAndVbo::OnCreate() {
+  vsh_ = AssetManagerUtils::GetInstance()->read("vao_and_vbo/vert.glsl");
+  fsh_ = AssetManagerUtils::GetInstance()->read("vao_and_vbo/frag.glsl");
+//  PLOGD<<"vsh_:"<<vsh_;
+//  PLOGD<<"fsh_:"<<fsh_;
   if (!BaseShader::OnCreate()) {
 	return false;
   }
@@ -115,8 +86,8 @@ void VaoAndVbo::OnChange(int width, int height) {
   BaseShader::OnChange(width, height);
 }
 void VaoAndVbo::OnDraw() {
-  if (program > GL_NONE) {
-	glUseProgram(program);
+  if (shader_program_.program() > GL_NONE) {
+	glUseProgram(shader_program_.program());
 	//使用vao
 	glBindVertexArray(vaoId);
 
@@ -125,7 +96,7 @@ void VaoAndVbo::OnDraw() {
   }
 }
 void VaoAndVbo::Destroy() {
-  if (program > GL_NONE) {
+  if (shader_program_.program() > GL_NONE) {
 	glDeleteBuffers(2, vboIds);
 	glDeleteVertexArrays(1, &vaoId);
 	vaoId = GL_NONE;

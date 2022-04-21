@@ -7,15 +7,12 @@
 #include "../opengl/base_shader.h"
 class Triangle : public BaseShader {
  public:
-  Triangle(bool isDraw = true);
+  Triangle(bool is_draw = true);
   virtual ~Triangle();
   bool OnCreate() override;
   void OnChange(int width, int height) override;
   void OnDraw() override;
   void Destroy() override;
- protected:
-  const char *GetVertex() override;
-  const char *GetFragment() override;
 };
 
 #endif //NATIVEOPENGLLEARN_DEMO_SRC_DEMO_TRIANGLE_H_

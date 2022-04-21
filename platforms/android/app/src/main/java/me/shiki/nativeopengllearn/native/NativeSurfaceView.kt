@@ -23,6 +23,7 @@ open class NativeSurfaceView @JvmOverloads constructor(
 
     init {
         holder?.addCallback(this)
+        nativeEgl.init(context)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {

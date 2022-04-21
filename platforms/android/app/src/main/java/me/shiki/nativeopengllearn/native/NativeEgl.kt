@@ -1,5 +1,7 @@
 package me.shiki.nativeopengllearn.native
 
+import android.content.Context
+import android.content.res.AssetManager
 import android.view.Surface
 
 /**
@@ -13,6 +15,10 @@ class NativeEgl {
         init {
             System.loadLibrary("demo_android")
         }
+    }
+
+    fun init(context: Context) {
+        native_Init(context.assets)
     }
 
     fun create(surface: Surface) {
@@ -30,6 +36,8 @@ class NativeEgl {
     fun notifyRender() {
         native_NotifyRender()
     }
+
+    private external fun native_Init(assetManager: AssetManager)
 
     private external fun native_Create(surface: Surface)
 

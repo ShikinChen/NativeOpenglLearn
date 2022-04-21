@@ -17,7 +17,7 @@ class NV21TextureMap : public BaseShader {
   void OnDraw() override;
   void Destroy() override;
 
-  NativeImage *GetImg();
+  NativeImage *img();
 
  private:
   GLuint yTextureId = 0;
@@ -26,11 +26,8 @@ class NV21TextureMap : public BaseShader {
   GLuint y_Texture;
   GLuint uv_Texture;
   GLuint u_Matrix;
-  NativeImage img;
+  NativeImage img_;
 
- protected:
-  const char *GetVertex() override;
-  const char *GetFragment() override;
  public:
   void ResetMatrix() override;
 };

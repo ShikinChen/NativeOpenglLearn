@@ -3,6 +3,7 @@
 #include <plog/Log.h>
 #include <plog/Formatters/FuncMessageFormatter.h>
 #include <unordered_map>
+
 #define NATIVE_EGL_CLASS_NAME "me/shiki/nativeopengllearn/native/NativeEgl"
 #define MAIN_ACTIVITY_CLASS_NAME "me/shiki/nativeopengllearn/MySurfaceView"
 
@@ -12,6 +13,11 @@ JavaVM *javaVm = NULL;
 extern "C" {
 #endif
 shared_ptr<ShaderControl> shaderlControl;
+
+JNIEXPORT void JNICALL native_Init(JNIEnv *env, jobject thiz, jobject j_a_asset_manager) {
+  AssetManagerUtils::Instance(env, &j_a_asset_manager);
+}
+
 JNIEXPORT void JNICALL native_Create(JNIEnv *env, jobject thiz, jobject surface) {
   if (!shaderlControl) {
 	shaderlControl = make_shared<ShaderControl>();
@@ -62,13 +68,13 @@ JNIEXPORT void JNICALL native_SetImageData(JNIEnv *env,
 	switch (index) {
 	  case 1: {
 		auto item = dynamic_pointer_cast<TextureMap>(shaderlControl->GetShader(index));
-		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
+		NativeImageUtil::InitNativeImage(format, width, height, buf, item->img());
 		item->ResetMatrix();
 	  }
 		break;
 	  case 2: {
 		auto item = dynamic_pointer_cast<NV21TextureMap>(shaderlControl->GetShader(index));
-		NativeImageUtil::InitNativeImage(format, width, height, buf, item->GetImg());
+		NativeImageUtil::InitNativeImage(format, width, height, buf, item->img());
 		item->ResetMatrix();
 	  }
 		break;
@@ -86,6 +92,7 @@ JNIEXPORT void JNICALL native_SetImageData(JNIEnv *env,
 }
 
 static JNINativeMethod g_NativeEglMethods[] = {
+	{"native_Init", "(Landroid/content/res/AssetManager;)V", (void *)(native_Init)},
 	{"native_Create", "(Landroid/view/Surface;)V", (void *)(native_Create)},
 	{"native_Change", "(II)V", (void *)(native_Change)},
 	{"native_Destroy", "()V", (void *)(native_Destroy)},

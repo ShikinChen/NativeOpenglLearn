@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "../util/ShaderUtils.h"
 #include "../include/ImageDef.h"
+#include "../util/asset_manager_utils.h"
 
 FboOffscreenRendering::FboOffscreenRendering(bool isDraw) : BaseShader(isDraw) {
   fbo_program = GL_NONE;
@@ -13,33 +14,11 @@ FboOffscreenRendering::FboOffscreenRendering(bool isDraw) : BaseShader(isDraw) {
   isCreateFrameBufferObj = true;
 }
 FboOffscreenRendering::~FboOffscreenRendering() {
-  NativeImageUtil::FreeNativeImage(&img);
-}
-const char *FboOffscreenRendering::GetVertex() {
-  return "#version 300 es                          \n"
-		 "layout(location = 0) in vec4 v_Position;  \n"
-		 "layout(location = 1) in vec2 f_Position;  \n"
-		 "out vec2 v_texCoord;  					\n"
-		 "uniform mat4 u_Matrix;  				    \n"
-		 "void main()                              \n"
-		 "{                                        \n"
-		 "   gl_Position = v_Position*u_Matrix;   \n"
-		 "   v_texCoord = f_Position;              \n"
-		 "}                                        \n";
-}
-const char *FboOffscreenRendering::GetFragment() {
-  return "#version 300 es                              \n"
-		 "precision mediump float;                     \n"
-		 "in vec2 v_texCoord;  							\n"
-		 "layout(location = 0) out vec4 outColor;  		\n"
-		 "uniform sampler2D s_TextureMap;  				\n"
-		 "void main()                                  \n"
-		 "{                                            \n"
-		 "   outColor = texture(s_TextureMap, v_texCoord);  \n"
-		 "}                                            \n";
 }
 
 bool FboOffscreenRendering::OnCreate() {
+  vsh_ = AssetManagerUtils::GetInstance()->read("fbo_offscreen_rendering/vert.glsl");
+  fsh_ = AssetManagerUtils::GetInstance()->read("fbo_offscreen_rendering/frag.glsl");
   if (!BaseShader::OnCreate()) {
 	return false;
   }
@@ -50,7 +29,7 @@ bool FboOffscreenRendering::OnCreate() {
 	  -1.0f, 1.0f, 0.0f,
 	  1.0f, 1.0f, 0.0f,
   };
-  vertexs_size_ = sizeof(v) / sizeof(v[0]);
+  vertexs_size_ = sizeof(v)/sizeof(v[0]);
   vertexs = new float[vertexs_size_];
   memcpy(vertexs, v, sizeof(v));
 
@@ -60,7 +39,7 @@ bool FboOffscreenRendering::OnCreate() {
 	  0.0f, 0.0f,
 	  1.0f, 0.0f,
   };
-  fragments_size_ = sizeof(f) / sizeof(f[0]);
+  fragments_size_ = sizeof(f)/sizeof(f[0]);
   fragments = new float[fragments_size_];
   memcpy(fragments, f, sizeof(f));
 
@@ -76,30 +55,30 @@ bool FboOffscreenRendering::OnCreate() {
 							"precision mediump float;                     \n"
 							"in vec2 v_texCoord;  							\n"
 							"layout(location = 0) out vec4 outColor;  		\n"
-							"uniform sampler2D s_TextureMap;  				\n"
+							"uniform sampler2D s_texture_map_;  				\n"
 							"void main()                                  \n"
 							"{                                            \n"
-							"  vec4 tmp = texture(s_TextureMap, v_texCoord);  \n"
+							"  vec4 tmp = texture(s_texture_map_, v_texCoord);  \n"
 							"  float luminance = tmp.r * 0.299 + tmp.g * 0.587 + tmp.b * 0.114;  \n"
 							"   outColor = vec4(vec3(luminance),tmp.a);  \n"
 							"}                                            \n";
 
-  fbo_program = ShaderUtils::CreateProgram(GetVertex(), fboFragment, &fbo_vertexShader, &fbo_fragmentShader);
+  fbo_program = ShaderUtils::CreateProgram(GetVertexSh().c_str(), fboFragment, &fbo_vertexShader, &fbo_fragmentShader);
   if (fbo_program <= GL_NONE) {
 	PLOGE << "离屏program创建失败";
 	return false;
   }
-  s_TextureMap = glGetUniformLocation(program, "s_TextureMap");
-  fbo_s_TextureMap = glGetUniformLocation(fbo_program, "s_TextureMap");
-  u_Matrix = glGetUniformLocation(program, "u_Matrix");
-  fbo_u_Matrix = glGetUniformLocation(fbo_program, "u_Matrix");
+  s_TextureMap = glGetUniformLocation(shader_program_.program(), "s_texture_map_");
+  fbo_s_TextureMap = glGetUniformLocation(fbo_program, "s_texture_map_");
+  u_Matrix = glGetUniformLocation(shader_program_.program(), "u_matrix");
+  fbo_u_Matrix = glGetUniformLocation(fbo_program, "u_matrix");
 
   glGenBuffers(4, vboIds);
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-  glBufferData(GL_ARRAY_BUFFER, vertexs_size_ * sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertexs_size_*sizeof(GLfloat), vertexs, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[1]);
-  glBufferData(GL_ARRAY_BUFFER, fragments_size_ * sizeof(GLfloat), fragments, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, fragments_size_*sizeof(GLfloat), fragments, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[2]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_f), fbo_f, GL_STATIC_DRAW);
@@ -115,7 +94,7 @@ bool FboOffscreenRendering::OnCreate() {
   int vertexPosIndex = 0;
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
   glEnableVertexAttribArray(vertexPosIndex);
-  glVertexAttribPointer(vertexPosIndex, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), reinterpret_cast<const void *>(0));
+  glVertexAttribPointer(vertexPosIndex, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GL_FLOAT), reinterpret_cast<const void *>(0));
   glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 
   int texturePosIndex = 1;
@@ -125,7 +104,7 @@ bool FboOffscreenRendering::OnCreate() {
 						2,
 						GL_FLOAT,
 						GL_FALSE,
-						2 * sizeof(GL_FLOAT),
+						2*sizeof(GL_FLOAT),
 						reinterpret_cast<const void *>(0));
   glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 
@@ -138,7 +117,7 @@ bool FboOffscreenRendering::OnCreate() {
 
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
   glEnableVertexAttribArray(vertexPosIndex);
-  glVertexAttribPointer(vertexPosIndex, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), reinterpret_cast<const void *>(0));
+  glVertexAttribPointer(vertexPosIndex, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GL_FLOAT), reinterpret_cast<const void *>(0));
   glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 
   glBindBuffer(GL_ARRAY_BUFFER, vboIds[2]);
@@ -147,7 +126,7 @@ bool FboOffscreenRendering::OnCreate() {
 						2,
 						GL_FLOAT,
 						GL_FALSE,
-						2 * sizeof(GL_FLOAT),
+						2*sizeof(GL_FLOAT),
 						reinterpret_cast<const void *>(0));
   glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 
@@ -175,14 +154,14 @@ void FboOffscreenRendering::OnChange(int width, int height) {
 }
 void FboOffscreenRendering::OnDraw() {
   BaseShader::OnDraw();
-  if (program > GL_NONE && imgTextureId > GL_NONE && img.ppPlane[0]) {
+  if (shader_program_.program() > GL_NONE && imgTextureId > GL_NONE && img.ppPlane[0]) {
 	if (isCreateFrameBufferObj) {
 	  CreateFrameBufferObj();
 	}
 
 	//屏幕渲染
 	glViewport(0, 0, width, height);
-	glUseProgram(program);
+	glUseProgram(shader_program_.program());
 	glBindVertexArray(vaoIds[0]);
 	glActiveTexture(GL_TEXTURE0);
 	//绑定离屏纹理并且渲染到屏幕
@@ -206,10 +185,10 @@ void FboOffscreenRendering::Destroy() {
 	glDeleteTextures(1, &fboTextureId);
   }
   if (vboIds[0]) {
-	glDeleteBuffers(sizeof(vboIds) / sizeof(vboIds[0]), vboIds);
+	glDeleteBuffers(sizeof(vboIds)/sizeof(vboIds[0]), vboIds);
   }
   if (vaoIds[0]) {
-	glDeleteBuffers(sizeof(vaoIds) / sizeof(vaoIds[0]), vaoIds);
+	glDeleteBuffers(sizeof(vaoIds)/sizeof(vaoIds[0]), vaoIds);
   }
   if (fboId) {
 	glDeleteFramebuffers(1, &fboId);
@@ -222,18 +201,18 @@ void FboOffscreenRendering::ResetMatrix() {
   if (img.width <= 0 || img.height <= 0 || width <= 0 || height <= 0) {
 	return;
   }
-  float sreen_r = width * 1.0 / height;
-  float img_r = img.width * 1.0 / img.height;
+  float sreen_r = width*1.0/height;
+  float img_r = img.width*1.0/img.height;
 
   float lr = 1.0f;
   float tb = 1.0f;
   if (sreen_r > img_r) {//宽度缩放
-	lr = width / (height * 1.0 / img.height * img.width);
+	lr = width/(height*1.0/img.height*img.width);
 	//这里top和bottom为0.5对应回顶点坐标0.5
 	tb = 1.0f;
 
   } else {//高度缩放
-	tb = height / (width * 1.0 / img.width * img.height);
+	tb = height/(width*1.0/img.width*img.height);
 	lr = 1.0f;
   }
   matrix = glm::ortho(-lr, lr, -tb, tb);
@@ -244,7 +223,7 @@ NativeImage *FboOffscreenRendering::GetImg() {
 bool FboOffscreenRendering::CreateFrameBufferObj() {
   //离屏渲染fbo一定要在egl线程调用
   isCreateFrameBufferObj = false;
-  if (program > GL_NONE) {
+  if (shader_program_.program() > GL_NONE) {
 	glBindTexture(GL_TEXTURE_2D, imgTextureId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width, img.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.ppPlane[0]);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
@@ -259,7 +238,7 @@ bool FboOffscreenRendering::CreateFrameBufferObj() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
-	if (fboId == GL_NONE) {
+	if (fboId==GL_NONE) {
 	  glGenFramebuffers(1, &fboId);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, fboId);
@@ -270,7 +249,7 @@ bool FboOffscreenRendering::CreateFrameBufferObj() {
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) {
 	  PLOGE << "创建离屏纹理失败";
 	  return false;
 	}

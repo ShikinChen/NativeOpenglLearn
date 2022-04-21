@@ -18,17 +18,14 @@ class TextureMap : public BaseShader {
   void OnDraw() override;
   void Destroy() override;
 
-  NativeImage *GetImg();
+  NativeImage *img();
 
  private:
-  GLuint textureId = 0;
-  GLuint s_TextureMap;
-  GLuint u_Matrix;
-  NativeImage img;
+  GLuint texture_id_ = 0;
+  GLuint s_texture_map_;
+  GLuint u_matrix;
+  NativeImage img_;
 
- protected:
-  const char *GetVertex() override;
-  const char *GetFragment() override;
  public:
   void ResetMatrix() override;
 };
